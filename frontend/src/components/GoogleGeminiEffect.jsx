@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "../lib/utils";
-import { motion } from "motion/react";
+import { motion, useTransform } from "motion/react";
 import React from "react";
 
 const transition = {
@@ -14,10 +14,16 @@ export const GoogleGeminiEffect = ({
   description,
   className
 }) => {
+  // Simple fade out based on the last path animation
+  const opacity = useTransform(pathLengths[4], [0.8, 1.2], [1, 0]);
+
   return (
-    <div className={cn("sticky top-1", className)}>
+    <motion.div 
+      className={cn("sticky top-1", className)}
+      style={{ opacity }}
+    >
       <p
-          className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-7xl dark:text-slate-300">
+          className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-7xl dark:text-slate-200">
         {title || `Now with enhanced Google Gemini AI support!`}
       </p>
       <svg
@@ -131,6 +137,6 @@ export const GoogleGeminiEffect = ({
           </filter>
         </defs>
       </svg>
-    </div>
+    </motion.div>
   );
 };

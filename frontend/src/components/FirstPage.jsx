@@ -2,14 +2,20 @@ import React from "react";
 
 import { HeroSectionOne } from "./HeroSectionOne";
 import Navbar from "./Navbar";
-// import DotGrid from './DotGrid';
 
 import Particles from './Particles';
 
+import GlowingEffectDemo from "./GlowingEffectDemo";
+
 import Footer from "./Footer";
+
+
+
 
 import { GoogleGeminiEffect } from "./GoogleGeminiEffect";
 import { useScroll, useTransform } from "motion/react";
+
+import { AnimatedTestimonialsDemo } from "./AnimatedTestimonialsDemo";
 
 
 // import { HeroSectionOne } from "./HeroSectionOne";
@@ -64,20 +70,31 @@ export default function FirstPage() {
 
                 <HeroSectionOne />
 
-                <div
-      className="h-[400vh] bg-transparent w-full dark:border dark:border-black/[0.1] rounded-md relative pt-40 overflow-clip"
-      ref={ref}
-    >
-      <GoogleGeminiEffect
-        pathLengths={[
-          pathLengthFirst,
-          pathLengthSecond,
-          pathLengthThird,
-          pathLengthFourth,
-          pathLengthFifth,
-        ]}
-      />
-    </div>
+                            <div
+                className="h-[400vh] bg-transparent w-full dark:border dark:border-black/[0.1] rounded-md relative pt-40 overflow-clip"
+                ref={ref}
+                >
+                <GoogleGeminiEffect
+                    pathLengths={[
+                    pathLengthFirst,
+                    pathLengthSecond,
+                    pathLengthThird,
+                    pathLengthFourth,
+                    pathLengthFifth,
+                    ]}
+                />
+                </div>
+
+                <GlowingEffectDemo />
+
+                {/* <AnimatedTestimonialsDemo /> */}
+                
+
+                
+
+
+
+
 
                 <Footer />
 
