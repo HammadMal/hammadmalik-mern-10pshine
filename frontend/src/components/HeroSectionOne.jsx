@@ -7,11 +7,9 @@ import { AnimatedTooltipPreview } from "./AnimatedTooltipPreview";
 export function HeroSectionOne() {
   return (
     <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center">
-        {/* Gradient overlay - same as user reviews */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {/* Your original content unchanged */}
-        <div className="relative px-4 py-10 md:py-20">
+        <div className="relative px-4 py-10 md:py-20 ml-5">
           <h1
             className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-7xl dark:text-slate-200">
             {"Capture your thoughts, organize your ideas"
