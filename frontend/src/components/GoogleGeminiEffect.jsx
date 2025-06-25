@@ -24,7 +24,13 @@ export const GoogleGeminiEffect = ({
     >
       <p
           className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-7xl dark:text-slate-200">
-        {title || `Now with enhanced Google Gemini AI support!`}
+        {title || `Now with enhanced Google `}
+
+                  <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          {title || `Gemini AI `}
+            </span>
+
+          {title ? "" : "Support!"}
       </p>
       <svg
         width="14400"

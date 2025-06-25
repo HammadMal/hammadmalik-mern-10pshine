@@ -10,7 +10,11 @@ export function GlowingEffectDemo() {
     
     <div className="px-4 py-10 md:py-20">
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
-            Features
+        Amazing{' '}   
+        <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+               Features
+        </span>
+
         </h1>
     </div>
     <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">

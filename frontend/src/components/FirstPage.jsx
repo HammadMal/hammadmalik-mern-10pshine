@@ -15,9 +15,6 @@ import SponsorsSection from "./SponsorsSection";
 
 import PricingCards from "./PricingCards";
 
-
-
-
 import { GoogleGeminiEffect } from "./GoogleGeminiEffect";
 import { useScroll, useTransform } from "motion/react";
 
@@ -54,7 +51,7 @@ export default function FirstPage() {
 
             <Navbar />
 
-            <div className="relative z-10 mx-auto my-10 flex max-w-7xl flex-col items-center justify-center min-h-screen pt-20">
+            <div className="relative z-10 mx-auto my-10 flex max-w-7xl flex-col items-center justify-center min-h-screen">
                 <HeroSectionOne />
 
                 <div
@@ -79,19 +76,8 @@ export default function FirstPage() {
                 <SponsorsSection />
 
                 <PricingCards />
-                
-
-                
-
-
-
-
-
+            
                 <Footer />
-
-
-
-                
 
             </div>
         </>
