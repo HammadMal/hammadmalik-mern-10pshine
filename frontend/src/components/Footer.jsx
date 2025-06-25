@@ -1,6 +1,8 @@
 import React from "react";
 import { motion } from "motion/react";
 
+import brainhive from "../assets/brainhive.png"; // Adjust the path as necessary
+
 const Footer = () => {
   const footerNavs = [
     {
@@ -175,11 +177,10 @@ const Footer = () => {
         >
           {/* Logo & Copyright */}
           <div className="flex items-center gap-4">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">✦</span>
-            </div>
+            <img src ={brainhive} alt="BrainHive Logo" className="w-10 h-10 rounded-full" />
+            
             <div>
-              <p className="text-white font-semibold">NoteTaker</p>
+              <p className="text-white font-semibold">NoteHive</p>
               <p className="text-gray-400 text-xs">© 2024 All rights reserved.</p>
             </div>
           </div>
