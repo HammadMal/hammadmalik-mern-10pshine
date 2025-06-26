@@ -1,6 +1,7 @@
 import React from "react";
 
 import { FirstHero } from "./FirstHero";
+
 import Navbar from "./Navbar";
 
 import Particles from './Particles';
@@ -14,6 +15,8 @@ import Footer from "./Footer";
 import SponsorsSection from "./SponsorsSection";
 
 import PricingCards from "./PricingCards";
+
+import { StickyScrollRevealDemo } from "./StickyScrollRevealDemo";
 
 import { SecondHero } from "./SecondHero";
 import { useScroll, useTransform } from "motion/react";
@@ -76,6 +79,9 @@ export default function FirstPage() {
                 <SponsorsSection />
 
                 <PricingCards />
+                
+                <StickyScrollRevealDemo />
+                
             
                 <Footer />
 

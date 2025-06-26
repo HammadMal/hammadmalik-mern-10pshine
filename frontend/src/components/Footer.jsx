@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 
-import brainhive from "../assets/brainhive.png"; // Adjust the path as necessary
+import brainhive from "../assets/brainhive.png"; 
 
 const Footer = () => {
   const footerNavs = [
