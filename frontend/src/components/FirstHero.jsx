@@ -1,17 +1,18 @@
 "use client";
 
 import { motion } from "motion/react";
-
 import { UserAvatarsDemo } from "./UserAvatarsDemo";
+import { FlipWords } from "./FlipWords";
 
 export function FirstHero() {
+  const words = ["memories", "concepts", "thoughts"];
+
   return (
     <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center mb-20">
       {/* Hero Content */}
       <div className="relative px-4 sm:px-6 lg:px-8 py-10 md:py-20">
-        <h1
-          className="relative z-10 mx-auto max-w-4xl text-center text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold text-slate-700 dark:text-slate-200 leading-tight">
-          {"Capture your thoughts, organize your ideas"
+        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold text-slate-700 dark:text-slate-200 leading-tight">
+          {"Capture  your"
             .split(" ")
             .map((word, index) => (
               <motion.span
@@ -27,35 +28,41 @@ export function FirstHero() {
                 {word}
               </motion.span>
             ))}
+          <span className="inline-block text-center">
+            <FlipWords words={words} className="text-slate-700 dark:text-slate-200 font-bold" />
+          </span>
+          <br />
+          {"Organize your ideas"
+            .split(" ")
+            .map((word, index) => (
+              <motion.span
+                key={index + 10}
+                initial={{ opacity: 0, filter: "blur(4px)", y: 10 }}
+                animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                transition={{
+                  duration: 0.3,
+                  delay: (index + 2) * 0.1,
+                  ease: "easeInOut",
+                }}
+                className="mr-2 inline-block">
+                {word}
+              </motion.span>
+            ))}
         </h1>
         
         <motion.p
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          transition={{
-            duration: 0.3,
-            delay: 0.8,
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.8 }}
           className="relative z-10 mx-auto max-w-xl py-4 px-4 text-center text-base sm:text-lg font-normal text-neutral-600 dark:text-neutral-400 leading-relaxed">
-          Experience seamless note-taking with powerful organization tools. Keep your thoughts structured, searchable, and always accessible across all your devices.
+          Experience seamless note-taking with powerful organization tools. Keep everything structured, searchable, and always accessible across all your devices.
         </motion.p>
         
         {/* CTA Section */}
         <motion.div
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          transition={{
-            duration: 0.3,
-            delay: 1,
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 1 }}
           className="relative z-10 mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-center gap-6 sm:gap-8 lg:gap-20">
           
           {/* User Avatars and Count */}

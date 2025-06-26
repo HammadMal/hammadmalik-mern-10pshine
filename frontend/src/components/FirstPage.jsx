@@ -16,7 +16,7 @@ import SponsorsSection from "./SponsorsSection";
 
 import PricingCards from "./PricingCards";
 
-import { StickyScrollRevealDemo } from "./StickyScrollRevealDemo";
+import {FAQSDemo } from "./FAQSDemo";
 
 import { SecondHero } from "./SecondHero";
 import { useScroll, useTransform } from "motion/react";
@@ -80,7 +80,7 @@ export default function FirstPage() {
 
                 <PricingCards />
                 
-                <StickyScrollRevealDemo />
+                <FAQSDemo />
                 
             
                 <Footer />
