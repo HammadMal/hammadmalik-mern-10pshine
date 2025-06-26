@@ -1,11 +1,11 @@
 import React from "react";
 
-import { HeroSectionOne } from "./HeroSectionOne";
+import { FirstHero } from "./FirstHero";
 import Navbar from "./Navbar";
 
 import Particles from './Particles';
 
-import GlowingEffectDemo from "./GlowingEffectDemo";
+import FeaturesDemo from "./FeaturesDemo";
 
 import UserReviewCards from "./UserReviewCards";
 
@@ -15,7 +15,7 @@ import SponsorsSection from "./SponsorsSection";
 
 import PricingCards from "./PricingCards";
 
-import { GoogleGeminiEffect } from "./GoogleGeminiEffect";
+import { SecondHero } from "./SecondHero";
 import { useScroll, useTransform } from "motion/react";
 
 
@@ -52,13 +52,13 @@ export default function FirstPage() {
             <Navbar />
 
             <div className="relative z-10 mx-auto my-10 flex max-w-7xl flex-col items-center justify-center min-h-screen">
-                <HeroSectionOne />
+                <FirstHero />
 
                 <div
                 className="h-[400vh] bg-transparent w-full dark:border dark:border-black/[0.1] rounded-md relative pt-40 overflow-clip"
                 ref={ref}
                 >
-                <GoogleGeminiEffect
+                <SecondHero
                     pathLengths={[
                     pathLengthFirst,
                     pathLengthSecond,
@@ -69,7 +69,7 @@ export default function FirstPage() {
                 />
                 </div>
 
-                <GlowingEffectDemo />
+                <FeaturesDemo />
 
                 <UserReviewCards />
 

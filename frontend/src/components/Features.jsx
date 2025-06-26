@@ -3,7 +3,7 @@ import { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "../lib/utils";
 import { animate } from "motion/react";
 
-const GlowingEffect = memo(({
+const Features = memo(({
   blur = 0,
   inactiveZone = 0.7,
   proximity = 0,
@@ -162,6 +162,6 @@ const GlowingEffect = memo(({
   );
 });
 
-GlowingEffect.displayName = "GlowingEffect";
+Features.displayName = "Features";
 
-export { GlowingEffect };
+export { Features };

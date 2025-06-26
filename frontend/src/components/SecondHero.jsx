@@ -8,7 +8,7 @@ const transition = {
   ease: "linear",
 };
 
-export const GoogleGeminiEffect = ({
+export const SecondHero = ({
   pathLengths,
   title,
   description,

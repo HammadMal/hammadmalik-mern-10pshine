@@ -2,9 +2,9 @@
 
 import { motion } from "motion/react";
 
-import { AnimatedTooltipPreview } from "./AnimatedTooltipPreview";
+import { UserAvatarsDemo } from "./UserAvatarsDemo";
 
-export function HeroSectionOne() {
+export function FirstHero() {
   return (
     <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center mb-20">
       {/* Hero Content */}
@@ -61,7 +61,7 @@ export function HeroSectionOne() {
           {/* User Avatars and Count */}
           <div className="flex flex-col items-center order-2 sm:order-1">
             <div className="flex items-center">
-              <AnimatedTooltipPreview />
+              <UserAvatarsDemo />
             </div>
             <div className="flex items-center gap-1 text-neutral-600 dark:text-neutral-400 -mt-2">
               <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -84,3 +84,5 @@ export function HeroSectionOne() {
     </div>
   );
 }
+
+export default FirstHero;

@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { AnimatedTooltip } from "./AnimatedTooltip";
+import { UserAvatars } from "./UserAvatars";
 const people = [
   {
     id: 1,
@@ -46,10 +46,10 @@ const people = [
   },
 ];
 
-export function AnimatedTooltipPreview() {
+export function UserAvatarsDemo() {
   return (
     <div className="flex flex-row items-center justify-center mb-10 w-full">
-      <AnimatedTooltip items={people} />
+      <UserAvatars items={people} />
     </div>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 import { FileText, Lock, Search, Settings, Sparkles, Cloud } from "lucide-react";
-import { GlowingEffect } from "./GlowingEffect.jsx";
+import { Features } from "./Features.jsx";
 
 
-export function GlowingEffectDemo() {
+export function FeaturesDemo() {
   return (
 
     <>
@@ -55,7 +55,7 @@ const GridItem = ({
   return (
     <li className="min-h-[18rem] h-full list-none">
       <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
-        <GlowingEffect
+        <Features
           spread={40}
           glow={true}
           disabled={false}
@@ -84,4 +84,4 @@ const GridItem = ({
   );
 };
 
-export default GlowingEffectDemo;
+export default FeaturesDemo;

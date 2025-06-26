@@ -9,7 +9,7 @@ import {
   useSpring,
 } from "motion/react";
 
-export const AnimatedTooltip = ({
+export const UserAvatars = ({
   items
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
