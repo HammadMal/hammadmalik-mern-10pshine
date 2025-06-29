@@ -47,9 +47,11 @@ const SponsorsSection = () => {
         {/* Header */}
         <motion.div
           className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0, x: 60 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+
         >
           <motion.p 
             className="text-sm font-semibold uppercase text-gray-400 tracking-wider mb-4"
@@ -80,9 +82,11 @@ const SponsorsSection = () => {
             hover:bg-white/10 hover:border-white/20
             transition-all duration-500 group
           "
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          initial={{ opacity: 0, x: 60 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+
           whileHover={{ 
             boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.25)",
           }}

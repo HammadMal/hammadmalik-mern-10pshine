@@ -42,6 +42,7 @@ const UserReviewCards = () => {
   ];
 
   return (
+    
     <div className="relative py-20 mt-20" id="reviews">
       {/* Background gradient */}
       
@@ -50,7 +51,7 @@ const UserReviewCards = () => {
         <motion.div 
           className="mb-16 space-y-4 text-center"
           initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">

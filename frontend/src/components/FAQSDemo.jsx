@@ -2,6 +2,8 @@
 import React from "react";
 import {FAQS } from "./FAQS.jsx";
 
+import FadeContent from "./FadeContent";
+
 const content = [
   {
     title: "How does NoteHive sync across devices?",
@@ -77,6 +79,8 @@ const content = [
 
 export function FAQSDemo() {
   return (
+  <FadeContent blur={true} duration={1000} easing="ease-out" initialOpacity={0}>
+
     <div id="faqs" className="w-full py-20 relative overflow-hidden">
       {/* Background effects - same as sponsors section */}
       <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse" />
@@ -99,5 +103,6 @@ export function FAQSDemo() {
         <FAQS content={content} contentClassName="bg-transparent backdrop-blur-sm border border-white/10" />
       </div>
     </div>
+    </FadeContent>  
   );
 }

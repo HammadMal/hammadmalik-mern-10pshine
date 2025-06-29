@@ -45,21 +45,21 @@ const PricingCards = () => {
       {/* <div className="absolute inset-0 bg-gradient-to-br from-blue-950/10 via-purple-950/5 to-transparent" /> */}
       
       {/* Floating orbs */}
-      <div className="absolute top-20 left-20 w-40 h-40 bg-blue-500/10 rounded-full blur-xl animate-pulse" />
-      <div className="absolute bottom-20 right-20 w-32 h-32 bg-purple-500/10 rounded-full blur-xl animate-pulse delay-1000" />
+      <div className="absolute top-20 left-20 w-40 h-40 bg-blue-500/10 rounded-full blur-xl whileInView-pulse" />
+      <div className="absolute bottom-20 right-20 w-32 h-32 bg-purple-500/10 rounded-full blur-xl whileInView-pulse delay-1000" />
       
       <div className="relative max-w-7xl mx-auto px-6 md:px-12 xl:px-6">
         {/* Header */}
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <motion.h2 
             className="text-3xl md:text-5xl font-bold text-white mb-4"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             Simple{" "}
@@ -70,7 +70,7 @@ const PricingCards = () => {
           <motion.p 
             className="text-gray-400 text-lg max-w-2xl mx-auto"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            whileInView={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             Choose the perfect plan for your note-taking needs. Upgrade or downgrade at any time.
@@ -90,7 +90,7 @@ const PricingCards = () => {
                 ${plan.popular ? 'ring-2 ring-blue-500/50' : ''}
               `}
               initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 + index * 0.2 }}
               whileHover={{ 
                 scale: 1.02,
@@ -134,7 +134,7 @@ const PricingCards = () => {
                         key={featureIndex}
                         className="flex items-start"
                         initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.4, delay: 0.8 + index * 0.2 + featureIndex * 0.1 }}
                       >
                         <div className="flex-shrink-0">
@@ -181,7 +181,7 @@ const PricingCards = () => {
                   <motion.div 
                     className="mt-8"
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 1.2 + index * 0.2 }}
                   >
                     <motion.a
@@ -210,7 +210,7 @@ const PricingCards = () => {
         <motion.div 
           className="text-center mt-16"
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.6 }}
         >
           <p className="text-gray-400 text-sm mb-4">

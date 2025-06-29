@@ -2,11 +2,6 @@ import react ,{useState,useEffect, useRef  } from "react";
 
 // import { useNavigate } from "react-router-dom";
 
-
-
-
-// import transparent from "../assets/aa.png";
-
 import brainhive from "../assets/brainhive.png";
 
 

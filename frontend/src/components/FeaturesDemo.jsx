@@ -2,10 +2,24 @@
 import { FileText, Lock, Search, Settings, Sparkles, Cloud } from "lucide-react";
 import { Features } from "./Features.jsx";
 
+import AnimatedContent from "./AnimatedContent.jsx";
+
 
 export function FeaturesDemo() {
   return (
     <>
+    <AnimatedContent
+  distance={100}
+  direction="vertical"
+  reverse={false}
+  duration={0.8}
+  ease="power3.out"
+  initialOpacity={0}
+  animateOpacity
+  scale={1.1}
+  threshold={0.1}
+  delay={0.1}
+>
     <div id = "features" className="px-4 py-10 md:py-20">
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
         Amazing{' '}   
@@ -41,6 +55,7 @@ export function FeaturesDemo() {
         title="Sync across all devices"
         description="Access your notes anywhere, anytime. Real-time synchronization keeps your content updated across all your devices." />
     </ul>
+</AnimatedContent>
     </>
   );
 }

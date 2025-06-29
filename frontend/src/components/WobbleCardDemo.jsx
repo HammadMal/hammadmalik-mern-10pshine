@@ -4,8 +4,13 @@ import React from "react";
 import { WobbleCard } from "./WobbleCard";
 import { GraduationCap, Briefcase, Lightbulb, BookOpen, Users, Code } from "lucide-react";
 
+import FadeContent from "./FadeContent";
+
+
+
 export function WobbleCardDemo() {
   return (
+    <FadeContent blur={true} duration={1000} easing="ease-out" initialOpacity={0}>
     <div className="w-full py-20">
       {/* Header */}
       <div className="text-center mb-16 px-6">
@@ -262,5 +267,7 @@ export function WobbleCardDemo() {
         </WobbleCard>
       </div>
     </div>
+
+    </FadeContent>
   );
 }
