@@ -5,9 +5,7 @@ import { Features } from "./Features.jsx";
 
 export function FeaturesDemo() {
   return (
-
     <>
-    
     <div className="px-4 py-10 md:py-20">
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
         Amazing{' '}   
