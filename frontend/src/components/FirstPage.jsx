@@ -4,8 +4,6 @@ import { FirstHero } from "./FirstHero";
 
 import Navbar from "./Navbar";
 
-import Particles from './Particles';
-
 import FeaturesDemo from "./FeaturesDemo";
 
 import UserReviewCards from "./UserReviewCards";
@@ -18,7 +16,7 @@ import PricingCards from "./PricingCards";
 
 import {FAQSDemo } from "./FAQSDemo";
 
-import { SecondHero } from "./SecondHero";
+import { WobbleCardDemo } from "./WobbleCardDemo";
 import { useScroll, useTransform } from "motion/react";
 
 
@@ -38,6 +36,7 @@ export default function FirstPage() {
 
     return (
         <>
+        
             {/* <div className="fixed inset-0 w-full h-full z-0">
 
                 <Particles
@@ -57,20 +56,8 @@ export default function FirstPage() {
             <div className="relative z-10 mx-auto my-10 flex max-w-7xl flex-col items-center justify-center min-h-screen">
                 <FirstHero />
 
-                <div
-                className="h-[400vh] bg-transparent w-full dark:border dark:border-black/[0.1] rounded-md relative pt-40 overflow-clip"
-                ref={ref}
-                >
-                <SecondHero
-                    pathLengths={[
-                    pathLengthFirst,
-                    pathLengthSecond,
-                    pathLengthThird,
-                    pathLengthFourth,
-                    pathLengthFifth,
-                    ]}
-                />
-                </div>
+                <WobbleCardDemo />
+
 
                 <FeaturesDemo />
 

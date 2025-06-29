@@ -13,7 +13,7 @@ export function FirstHero() {
 
     <>
     
-    <div className="absolute inset-0 w-full h-full z-0">
+    <div className="absolute inset-0 w-full h-full z-0 ">
 
       <Spotlight />
 
