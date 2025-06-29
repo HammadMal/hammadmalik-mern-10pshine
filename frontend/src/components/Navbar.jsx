@@ -37,6 +37,18 @@ const Navbar = () => {
     //     }
     //   };
 
+    const scrollToSection = (sectionId) => 
+    {
+    const element = document.getElementById(sectionId);
+    if (element) 
+      {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+    };
+
 
   return (
 
@@ -52,11 +64,38 @@ const Navbar = () => {
                 <span className="text-white font-bold text-xl">NoteHive</span>
               </div>
               <nav className="hidden md:flex space-x-8 mr-12">
-                <a href="#features" className="text-white/80 hover:text-white transition-colors">Features</a>
-                <a href="#how-it-works" className="text-white/80 hover:text-white transition-colors">How It Works</a>
-                <a href="#pricing" className="text-white/80 hover:text-white transition-colors">Pricing</a>
-                <a href="#Reviews" className="text-white/80 hover:text-white transition-colors">Reviews</a>
-    
+              <button 
+                onClick={() => scrollToSection('features')} 
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                Features
+              </button> 
+
+              <button 
+                onClick={() => scrollToSection('reviews')} 
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                Reviews
+              </button>                 
+              
+              
+              <button 
+                onClick={() => scrollToSection('pricing')} 
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                Pricing
+              </button>   
+              
+              
+              <button 
+                onClick={() => scrollToSection('faqs')} 
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                FAQS
+              </button>   
+
+
+
               </nav>
               <button 
                 className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all duration-300"

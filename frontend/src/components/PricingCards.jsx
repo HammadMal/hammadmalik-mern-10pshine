@@ -40,7 +40,7 @@ const PricingCards = () => {
   ];
 
   return (
-    <div className="relative py-20 overflow-hidden mt-20">
+    <div id="pricing" className="relative py-20 overflow-hidden mt-20">
       {/* Background effects */}
       {/* <div className="absolute inset-0 bg-gradient-to-br from-blue-950/10 via-purple-950/5 to-transparent" /> */}
       

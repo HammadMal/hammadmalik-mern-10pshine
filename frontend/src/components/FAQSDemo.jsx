@@ -77,7 +77,7 @@ const content = [
 
 export function FAQSDemo() {
   return (
-    <div className="w-full py-20 relative overflow-hidden">
+    <div id="faqs" className="w-full py-20 relative overflow-hidden">
       {/* Background effects - same as sponsors section */}
       <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse" />
       <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-500/10 rounded-full blur-xl animate-pulse delay-1000" />
