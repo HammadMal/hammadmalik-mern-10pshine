@@ -4,11 +4,23 @@ import { motion } from "motion/react";
 import { UserAvatarsDemo } from "./UserAvatarsDemo";
 import { FlipWords } from "./FlipWords";
 
+import Spotlight  from "./Spotlight";
+
 export function FirstHero() {
   const words = ["memories", "concepts", "thoughts"];
 
   return (
-    <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center mb-20">
+
+    <>
+    
+    <div className="absolute inset-0 w-full h-full z-0">
+
+      <Spotlight />
+
+    </div>
+    
+    <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center mb-30">
+
       {/* Hero Content */}
       <div className="relative px-4 sm:px-6 lg:px-8 py-10 md:py-20">
         <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold text-slate-700 dark:text-slate-200 leading-tight">
@@ -89,6 +101,8 @@ export function FirstHero() {
         </motion.div>
       </div>
     </div>
+
+    </>
   );
 }
 

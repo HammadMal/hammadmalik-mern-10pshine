@@ -38,7 +38,7 @@ export default function FirstPage() {
 
     return (
         <>
-            <div className="fixed inset-0 w-full h-full z-0">
+            {/* <div className="fixed inset-0 w-full h-full z-0">
 
                 <Particles
                     particleColors={['#60A5FA', '#818CF8', '#A78BFA']}
@@ -50,7 +50,7 @@ export default function FirstPage() {
                     alphaParticles={false}
                     disableRotation={false}
                 />
-            </div>
+            </div> */}
 
             <Navbar />
 
