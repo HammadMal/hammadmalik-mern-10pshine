@@ -21,7 +21,7 @@ export function FeaturesDemo() {
   delay={0.1}
 >
     <div id = "features" className="px-4 py-10 md:py-20">
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 text-center">
         Amazing{' '}   
         <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
                Features

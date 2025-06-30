@@ -47,7 +47,7 @@ const Navbar = () => {
 
   return (
 
-          <header className="relative z-10 py-4 px-6 md:px-12 h-24">
+          <header className="relative z-10 py-4 px-6 md:px-12 h-24 mt-10">
                           {/* <LoadingBar color="#3F7D58" ref={ref} height={3} /> */}
 
     
