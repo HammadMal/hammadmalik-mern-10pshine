@@ -8,30 +8,6 @@ import brainhive from "../assets/brainhive.png";
 
 const Navbar = () => {
 
-    // const ref = useRef(null);
-    // const navigate = useNavigate();
-
-    
-
-    // const handleSignIn = () => {
-    //     if (ref.current) {
-    //       ref.current.continuousStart(); // Start loading animation
-    //       let progress = 0;
-    //       const interval = setInterval(() => {
-    //         progress += 20;
-    //         if (progress >= 90) {
-    //           clearInterval(interval);
-    //           ref.current.complete(); // Complete animation
-    //           setTimeout(() => navigate("/login"), 200);
-    //         } else {
-    //           ref.current.static(progress);
-    //         }
-    //       }, 100);
-    //     } else {
-    //       console.error("Loading bar ref is null");
-    //     }
-    //   };
-
     const scrollToSection = (sectionId) => 
     {
     const element = document.getElementById(sectionId);

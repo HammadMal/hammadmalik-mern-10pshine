@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const AuthPages = () => {
+const SignUp = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -11,6 +11,7 @@ const AuthPages = () => {
     acceptTerms: false
   });
 
+  
   const [showPasswordStrength, setShowPasswordStrength] = useState(false);
 
   const handleInputChange = (e) => {
@@ -359,4 +360,4 @@ const AuthPages = () => {
 
 }
 
-export default AuthPages;   
+export default SignUp;   

@@ -2,15 +2,14 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './App.css'
 
-import FirstPage from './components/FirstPage'
-import AuthPages from './components/AuthPages'
+import SignUp from './components/SignUp'
 
 
 
 function App() {
 
   return (
-   <AuthPages />
+   <SignUp />
   )
 }
 
