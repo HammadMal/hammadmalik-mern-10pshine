@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import Orb from './Orb'; 
+
 const SignUp = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -53,50 +55,38 @@ const SignUp = () => {
   };
 
   return (
-    <div className="relative bg-gradient-to-bl from-blue-100 via-transparent dark:from-blue-950 dark:via-transparent">
-      <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+
+    <>
+
+
+      <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto mt-20">
         {/* Grid */}
         <div className="grid items-center md:grid-cols-2 gap-8 lg:gap-12">
           <div>
-            <p className="inline-block text-sm font-medium bg-clip-text bg-gradient-to-l from-blue-600 to-violet-500 text-transparent dark:from-blue-400 dark:to-violet-400">
-              Preline: A vision for 2024
+
+            <div style={{ width: '100%', height: '450px', position: 'relative' }} className="mb-8">
+              <Orb
+                hoverIntensity={0.3}
+                rotateOnHover={false}
+                hue={1}
+                forceHoverState={false}
+              />
+            </div>
+        <p className="inline-block text-sm font-medium bg-clip-text bg-gradient-to-l from-blue-600 to-violet-500 text-transparent dark:from-blue-400 dark:to-violet-400">
+              NoteHive: Revolutionizing note-taking for 2024
             </p>
 
             {/* Title */}
             <div className="mt-4 md:mb-12 max-w-2xl">
-              <h1 className="mb-4 font-semibold text-gray-800 text-4xl lg:text-5xl dark:text-neutral-200">
-                Fully customizable rules to match your unique needs
-              </h1>
-              <p className="text-gray-600 dark:text-neutral-400">
-                We provide you with a test account that can be set up in seconds. Our main focus is getting responses to you as soon as we can.
+              {/* <h1 className="mb-4 font-semibold text-gray-800 text-4xl lg:text-5xl dark:text-neutral-200">
+                Capture, organize, and sync your thoughts seamlessly
+              </h1> */}
+              <p className="text-white-600">
+                Join thousands of users who trust NoteHive for intelligent note-taking. Experience AI-powered organization, real-time sync, and secure cloud storage.
               </p>
             </div>
             {/* End Title */}
 
-            {/* Blockquote */}
-            <blockquote className="hidden md:block relative max-w-sm">
-              <svg className="absolute top-0 start-0 transform -translate-x-6 -translate-y-8 size-16 text-gray-200 dark:text-neutral-800" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M7.39762 10.3C7.39762 11.0733 7.14888 11.7 6.6514 12.18C6.15392 12.6333 5.52552 12.86 4.76621 12.86C3.84979 12.86 3.09047 12.5533 2.48825 11.94C1.91222 11.3266 1.62421 10.4467 1.62421 9.29999C1.62421 8.07332 1.96459 6.87332 2.64535 5.69999C3.35231 4.49999 4.33418 3.55332 5.59098 2.85999L6.4943 4.25999C5.81354 4.73999 5.26369 5.27332 4.84476 5.85999C4.45201 6.44666 4.19017 7.12666 4.05926 7.89999C4.29491 7.79332 4.56983 7.73999 4.88403 7.73999C5.61716 7.73999 6.21938 7.97999 6.69067 8.45999C7.16197 8.93999 7.39762 9.55333 7.39762 10.3ZM14.6242 10.3C14.6242 11.0733 14.3755 11.7 13.878 12.18C13.3805 12.6333 12.7521 12.86 11.9928 12.86C11.0764 12.86 10.3171 12.5533 9.71484 11.94C9.13881 11.3266 8.85079 10.4467 8.85079 9.29999C8.85079 8.07332 9.19117 6.87332 9.87194 5.69999C10.5789 4.49999 11.5608 3.55332 12.8176 2.85999L13.7209 4.25999C13.0401 4.73999 12.4903 5.27332 12.0713 5.85999C11.6786 6.44666 11.4168 7.12666 11.2858 7.89999C11.5215 7.79332 11.7964 7.73999 12.1106 7.73999C12.8437 7.73999 13.446 7.97999 13.9173 8.45999C14.3886 8.93999 14.6242 9.55333 14.6242 10.3Z" fill="currentColor"/>
-              </svg>
-
-              <div className="relative z-10">
-                <p className="text-xl italic text-gray-800 dark:text-white">
-                  Amazing people to work with. Very fast and professional partner.
-                </p>
-              </div>
-
-              <footer className="mt-3">
-                <div className="flex items-center gap-x-4">
-                  <div className="shrink-0">
-                    <img className="size-8 rounded-full" src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80" alt="Avatar" />
-                  </div>
-                  <div className="grow">
-                    <div className="font-semibold text-gray-800 dark:text-neutral-200">Josh Grazioso</div>
-                    <div className="text-xs text-gray-500 dark:text-neutral-500">Director Payments & Risk | Airbnb</div>
-                  </div>
-                </div>
-              </footer>
-            </blockquote>
             {/* End Blockquote */}
           </div>
           {/* End Col */}
@@ -118,7 +108,7 @@ const SignUp = () => {
                   </div>
 
                   <div className="mt-5">
-                    <button 
+                    {/* <button 
                       type="button" 
                       onClick={handleGoogleSignup}
                       className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
@@ -130,9 +120,10 @@ const SignUp = () => {
                         <path d="M23.4694 9.07688C27.8699 9.07688 30.8622 10.9863 32.5344 12.5725L39.1645 6.11C35.0867 2.32063 29.8061 0 23.4694 0C14.287 0 6.36607 5.2875 2.49362 12.9544L10.0918 18.8588C11.9987 13.1894 17.25 9.07688 23.4694 9.07688Z" fill="#EB4335"/>
                       </svg>
                       Sign up with Google
-                    </button>
+                    </button> */}
 
-                    <div className="py-3 flex items-center text-xs text-gray-400 uppercase before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6 dark:text-neutral-500 dark:before:border-neutral-700 dark:after:border-neutral-700">Or</div>
+                    <div className="my-6 border-t border-gray-200 dark:border-neutral-700"></div>
+
 
                     {/* Grid */}
                     <div className="grid grid-cols-2 gap-4">
@@ -355,7 +346,7 @@ const SignUp = () => {
         </div>
         {/* End Grid */}
         </div>
-        </div>
+        </>
     );
 
 }
