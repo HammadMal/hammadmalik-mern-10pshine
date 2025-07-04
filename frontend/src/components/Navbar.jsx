@@ -1,12 +1,16 @@
 import react ,{useState,useEffect, useRef  } from "react";
 
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import brainhive from "../assets/brainhive.png";
+
+import SignIn from "./SignIn";
 
 
 
 const Navbar = () => {
+
+    const navigate = useNavigate();
 
     const scrollToSection = (sectionId) => 
     {
@@ -19,6 +23,13 @@ const Navbar = () => {
       });
     }
     };
+
+    const handleonclick = () => {
+        navigate("/signin");
+
+    };
+
+
 
 
   return (
@@ -69,6 +80,7 @@ const Navbar = () => {
 
               </nav>
               <button 
+                onClick={handleonclick}
                 className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all duration-300"
               >
                 Sign In
