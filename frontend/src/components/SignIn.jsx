@@ -135,7 +135,7 @@ const SignIn = () => {
                       Sign In with Google
                     </button>
 
-<div className="py-3 flex items-center text-xs text-gray-400 uppercase before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6 dark:text-neutral-500 dark:before:border-neutral-700 dark:after:border-neutral-700">or</div>
+                  <div className="py-3 flex items-center text-xs text-gray-400 uppercase before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6 dark:text-neutral-500 dark:before:border-neutral-700 dark:after:border-neutral-700">or</div>
 
                     {/* Grid */}
                     <div className="grid grid-cols-2 gap-4">
@@ -204,9 +204,9 @@ const SignIn = () => {
 
                     <div className="mt-4 text-center">
                     <p className="text-sm text-gray-600 dark:text-neutral-400">
-                        <a href="#" className="text-blue-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-blue-500">
+                        <Link  className="text-blue-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-blue-500" to="/forgot-password">
                         Forgot your password?
-                        </a>
+                        </Link>
                     </p>
                     </div>
                     </div>

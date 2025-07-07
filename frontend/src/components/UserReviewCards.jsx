@@ -1,7 +1,18 @@
 import React from "react";
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
+
+
 
 const UserReviewCards = () => {
+
+  const navigate = useNavigate();
+  const handleButtonClick = () => {
+      navigate("/signup");
+
+    }
+
+
   const testimonials = [
     {
       name: "Daniella Chen",
@@ -146,6 +157,7 @@ const UserReviewCards = () => {
             Join thousands of satisfied users
           </p>
           <motion.button
+            onClick={handleButtonClick}
             className="
               px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600
               text-white font-semibold rounded-xl
