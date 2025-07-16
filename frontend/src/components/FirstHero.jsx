@@ -4,10 +4,19 @@ import { motion } from "motion/react";
 import { UserAvatarsDemo } from "./UserAvatarsDemo";
 import { FlipWords } from "./FlipWords";
 
+import { useNavigate } from "react-router-dom";
+
 import Spotlight  from "./Spotlight";
 
 export function FirstHero() {
   const words = ["memories", "concepts", "thoughts"];
+
+
+  const navigate = useNavigate();
+
+  const handleButtonClick = () => {
+    navigate("/signin");
+  }
 
   return (
 
@@ -92,6 +101,7 @@ export function FirstHero() {
 
           {/* CTA Button */}
           <motion.button
+            onClick={handleButtonClick}
             className="w-full sm:w-auto px-8 py-3 transform rounded-lg bg-black text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 shadow-lg hover:shadow-xl order-1 sm:order-2 mb-11"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

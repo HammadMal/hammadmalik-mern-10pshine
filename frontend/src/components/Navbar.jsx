@@ -1,13 +1,11 @@
 import react ,{useState,useEffect, useRef  } from "react";
-
-// import { useNavigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 import brainhive from "../assets/brainhive.png";
-
-
+import SignIn from "./SignIn";
 
 const Navbar = () => {
-
+    const navigate = useNavigate();
+    
     const scrollToSection = (sectionId) => 
     {
     const element = document.getElementById(sectionId);
@@ -19,13 +17,12 @@ const Navbar = () => {
       });
     }
     };
-
-
+    const handleonclick = () => {
+        navigate("/signin");
+    };
   return (
-
           <header className="relative z-10 py-4 px-6 md:px-12 h-24 mt-10">
                           {/* <LoadingBar color="#3F7D58" ref={ref} height={3} /> */}
-
     
             <div className="max-w-7xl mx-auto flex justify-between items-center mt-1">
               <div className="flex items-center space-x-2">
@@ -41,7 +38,6 @@ const Navbar = () => {
               >
                 Features
               </button> 
-
               <button 
                 onClick={() => scrollToSection('reviews')} 
                 className="text-white/80 hover:text-white transition-colors"
@@ -64,11 +60,9 @@ const Navbar = () => {
               >
                 FAQS
               </button>   
-
-
-
               </nav>
               <button 
+                onClick={handleonclick}
                 className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all duration-300"
               >
                 Sign In
@@ -77,5 +71,4 @@ const Navbar = () => {
           </header>
   );
 }       
-
 export default Navbar;
