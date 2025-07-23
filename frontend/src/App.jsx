@@ -16,6 +16,8 @@ import VerifyOTP from './components/VerifyOTP';
 
 import NewPassword from './components/NewPassword';
 
+import Dashboard from './components/Dashboard';
+
 
 function App() {
 
@@ -28,9 +30,13 @@ function App() {
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="verify-otp" element={<VerifyOTP />} />
         <Route path="new-password" element={<NewPassword />} />
+        <Route path="dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>  
     )
 }
 
 export default App
+
+
+
