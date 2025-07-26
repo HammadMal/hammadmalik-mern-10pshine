@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+
+import { useNavigate } from 'react-router-dom'; 
 import { 
   Plus, 
   Search, 
@@ -19,10 +21,21 @@ import {
 } from 'lucide-react';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   // Mock navigation functions - replace with actual routing
   const navigateToEditor = (noteId = null) => {
-    console.log(`Navigate to editor${noteId ? ` with note ${noteId}` : ' for new note'}`);
-    // Replace with actual navigation logic
+    // console.log(`Navigate to editor${noteId ? ` with note ${noteId}` : ' for new note'}`);
+
+
+    if (noteId) {
+
+      navigate(`/note-editor/${noteId}`); // Navigate to note editor with existing note
+    }
+    else {
+      // Navigate to note editor for new note
+
+      navigate('/note-editor'); // Navigate to note editor for new note
+    }
   };
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'

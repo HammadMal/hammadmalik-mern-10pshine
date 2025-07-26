@@ -18,6 +18,8 @@ import NewPassword from './components/NewPassword';
 
 import Dashboard from './components/Dashboard';
 
+import NoteEditor from './components/NoteEditor';
+
 
 function App() {
 
@@ -31,6 +33,8 @@ function App() {
         <Route path="verify-otp" element={<VerifyOTP />} />
         <Route path="new-password" element={<NewPassword />} />
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="note-editor" element={<NoteEditor />} />
+        <Route path ="note-editor/:noteId" element={<NoteEditor />} />
       </Routes>
     </BrowserRouter>  
     )
