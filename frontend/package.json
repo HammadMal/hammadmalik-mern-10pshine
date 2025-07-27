@@ -11,6 +11,10 @@
   },
   "dependencies": {
     "@tabler/icons-react": "^3.34.0",
+    "@tiptap/extension-text-align": "^3.0.7",
+    "@tiptap/extension-underline": "^3.0.7",
+    "@tiptap/react": "^3.0.7",
+    "@tiptap/starter-kit": "^3.0.7",
     "@tsparticles/engine": "^3.8.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.8.1",

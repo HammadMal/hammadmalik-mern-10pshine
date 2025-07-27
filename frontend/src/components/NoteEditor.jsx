@@ -98,25 +98,27 @@ const NoteEditor = () => {
         overflow-x: auto !important;
         color: #ffffff !important;
       }
-      .editor-content ul, .editor-content ol { 
+      .editor-content ul { 
+        list-style-type: disc !important;
         margin: 1rem 0 !important; 
-        padding-left: 2rem !important; 
+        padding-left: 2rem !important;
+      }
+
+      .editor-content ol {
+        list-style-type: decimal !important;
+        margin: 1rem 0 !important;
+        padding-left: 2rem !important;
+      }
+
+      .editor-content li {
+        display: list-item !important;
+        margin: 0.5rem 0 !important;
         color: #ffffff !important;
       }
-      .editor-content li { 
-        margin: 0.5rem 0 !important; 
-        color: #ffffff !important;
-      }
-      .editor-content strong, .editor-content b {
-        font-weight: bold !important;
-        color: #ffffff !important;
-      }
-      .editor-content em, .editor-content i {
+
+      .editor-content em, .editor-content i { 
         font-style: italic !important;
-        color: #ffffff !important;
-      }
-      .editor-content u {
-        text-decoration: underline !important;
+        display: inline !important;
         color: #ffffff !important;
       }
     `;
@@ -248,51 +250,46 @@ const NoteEditor = () => {
     
     try {
       if (command === 'bold') {
-        const selectedText = range.toString();
-        if (selectedText) {
-          const strong = document.createElement('strong');
-          strong.style.fontWeight = 'bold';
-          strong.style.color = '#ffffff';
-          
-          try {
-            range.surroundContents(strong);
-          } catch (e) {
-            strong.textContent = selectedText;
-            range.deleteContents();
-            range.insertNode(strong);
+        document.execCommand('bold', false);
+        // Ensure proper styling
+        setTimeout(() => {
+          const selection = window.getSelection();
+          if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const boldElement = range.commonAncestorContainer.parentElement;
+            if (boldElement && (boldElement.tagName === 'B' || boldElement.tagName === 'STRONG')) {
+              boldElement.style.cssText = `
+                font-weight: bold !important;
+                color: #ffffff !important;
+                display: inline !important;
+              `;
+            }
           }
-          
-          // Clear selection
-          selection.removeAllRanges();
-          // Move cursor after the bold text
-          const newRange = document.createRange();
-          newRange.setStartAfter(strong);
-          newRange.collapse(true);
-          selection.addRange(newRange);
-        }
+        }, 0);
       } else if (command === 'italic') {
-        const selectedText = range.toString();
-        if (selectedText) {
-          const em = document.createElement('em');
-          em.style.fontStyle = 'italic';
-          em.style.color = '#ffffff';
-          
-          try {
-            range.surroundContents(em);
-          } catch (e) {
-            em.textContent = selectedText;
-            range.deleteContents();
-            range.insertNode(em);
+        document.execCommand('italic', false);
+        // Ensure proper styling
+        setTimeout(() => {
+          const selection = window.getSelection();
+          if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const italicElement = range.commonAncestorContainer.parentElement;
+            if (italicElement && (italicElement.tagName === 'I' || italicElement.tagName === 'EM')) {
+              italicElement.style.cssText = `
+                font-style: italic !important;
+                color: #ffffff !important;
+                display: inline !important;
+              `;
+            }
           }
-          
-          // Clear selection
-          selection.removeAllRanges();
-          // Move cursor after the italic text
-          const newRange = document.createRange();
-          newRange.setStartAfter(em);
-          newRange.collapse(true);
-          selection.addRange(newRange);
-        }
+        }, 0);
+
+        // Update content state
+        setTimeout(() => {
+          if (editorRef.current) {
+            setContent(editorRef.current.innerHTML);
+          }
+        }, 10);
       } else if (command === 'underline') {
         const selectedText = range.toString();
         if (selectedText) {
@@ -317,27 +314,50 @@ const NoteEditor = () => {
           selection.addRange(newRange);
         }
       } else if (command === 'insertUnorderedList') {
-        // Create unordered list
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        
+        const range = selection.getRangeAt(0);
+        const selectedText = range.toString();
+        
+        // Create list and item
         const ul = document.createElement('ul');
-        ul.style.margin = '1rem 0';
-        ul.style.paddingLeft = '2rem';
-        ul.style.color = '#ffffff';
-        
         const li = document.createElement('li');
-        li.style.margin = '0.5rem 0';
-        li.style.color = '#ffffff';
-        li.textContent = range.toString() || 'List item';
         
+        // Set styles
+        ul.style.cssText = `
+          margin: 1rem 0;
+          padding-left: 2rem;
+          color: #ffffff;
+          list-style-type: disc;
+        `;
+        
+        li.style.cssText = `
+          margin: 0.5rem 0;
+          color: #ffffff;
+        `;
+        
+        // Add content
+        li.textContent = selectedText || 'List item';
         ul.appendChild(li);
+        
+        // Replace selection with list
         range.deleteContents();
         range.insertNode(ul);
         
-        // Place cursor inside the list item
+        // Place cursor at end of list item
         const newRange = document.createRange();
-        newRange.setStart(li, 0);
-        newRange.setEnd(li, li.childNodes.length);
+        newRange.setStartAfter(li.lastChild || li);
+        newRange.collapse(true);
         selection.removeAllRanges();
         selection.addRange(newRange);
+        
+        // Update content
+        setTimeout(() => {
+          if (editorRef.current) {
+            setContent(editorRef.current.innerHTML);
+          }
+        }, 10);
         
       } else if (command === 'insertOrderedList') {
         // Create ordered list
@@ -400,62 +420,68 @@ const NoteEditor = () => {
     if (!selection.rangeCount) return;
     
     const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
     
     try {
-      // Get current line/block
-      let currentBlock = range.commonAncestorContainer;
-      if (currentBlock.nodeType === Node.TEXT_NODE) {
-        currentBlock = currentBlock.parentElement;
-      }
+      // Create new heading element
+      const heading = document.createElement(`h${level}`);
+      heading.style.cssText = `
+        font-size: ${level === 1 ? '1.5rem' : level === 2 ? '1.25rem' : '1.125rem'} !important;
+        font-weight: ${level === 1 ? 'bold' : level === 2 ? '600' : '500'} !important;
+        margin-bottom: ${level === 1 ? '1rem' : level === 2 ? '0.75rem' : '0.5rem'} !important;
+        color: #ffffff !important;
+      `;
       
-      // Find the actual block element
-      while (currentBlock && currentBlock !== editorRef.current && 
-             !['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(currentBlock.tagName)) {
-        currentBlock = currentBlock.parentElement;
-      }
+      // Set content
+      heading.textContent = selectedText || `Heading ${level}`;
       
-      if (currentBlock && currentBlock !== editorRef.current) {
-        // Create new heading element
-        const heading = document.createElement(`h${level}`);
-        heading.style.fontSize = level === 1 ? '1.5rem' : level === 2 ? '1.25rem' : '1.125rem';
-        heading.style.fontWeight = level === 1 ? 'bold' : level === 2 ? '600' : '500';
-        heading.style.marginBottom = level === 1 ? '1rem' : level === 2 ? '0.75rem' : '0.5rem';
-        heading.style.color = '#ffffff';
-        heading.textContent = currentBlock.textContent || `Heading ${level}`;
-        
-        // Replace the current block with the heading
-        currentBlock.parentNode.replaceChild(heading, currentBlock);
-        
-        // Position cursor at end of heading
-        const newRange = document.createRange();
-        newRange.selectNodeContents(heading);
-        newRange.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-      }
+      // Insert heading
+      range.deleteContents();
+      range.insertNode(heading);
       
-      // Update content
+      // Move cursor to end of heading
+      const newRange = document.createRange();
+      newRange.setStartAfter(heading);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+      
+      // Update content state
       setTimeout(() => {
         if (editorRef.current) {
           setContent(editorRef.current.innerHTML);
         }
-      }, 50);
+      }, 10);
       
     } catch (error) {
-      console.warn('Heading creation failed:', error);
-      // Fallback to execCommand
+      console.warn('Heading insertion failed:', error);
+      // Fallback
       try {
         document.execCommand('formatBlock', false, `h${level}`);
+        
+        // Ensure styles are applied
+        const headingElement = range.commonAncestorContainer.parentElement;
+        if (headingElement && headingElement.tagName === `H${level}`) {
+          headingElement.style.cssText = `
+            font-size: ${level === 1 ? '1.5rem' : level === 2 ? '1.25rem' : '1.125rem'} !important;
+            font-weight: ${level === 1 ? 'bold' : level === 2 ? '600' : '500'} !important;
+            margin-bottom: ${level === 1 ? '1rem' : level === 2 ? '0.75rem' : '0.5rem'} !important;
+            color: #ffffff !important;
+          `;
+        }
+        
+        // Update content
         setTimeout(() => {
           if (editorRef.current) {
             setContent(editorRef.current.innerHTML);
           }
-        }, 50);
+        }, 10);
       } catch (fallbackError) {
-        console.error('Fallback heading command failed:', fallbackError);
+        console.error('Fallback heading insertion failed:', fallbackError);
       }
     }
     
+    // Restore focus
     editorRef.current?.focus();
   };
 
@@ -679,8 +705,8 @@ const NoteEditor = () => {
                   ref={editorRef}
                   contentEditable
                   suppressContentEditableWarning
+                  dangerouslySetInnerHTML={{ __html: content }} // Add this line
                   onInput={(e) => {
-                    // Update content immediately
                     setContent(e.target.innerHTML);
                   }}
                   onKeyDown={(e) => {
