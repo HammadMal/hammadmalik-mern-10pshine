@@ -1,16 +1,28 @@
 import React from 'react'
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import './App.css'
+
 import SignUp from './components/SignUp'
+
 import SignIn from './components/SignIn'
+
 import FirstPage from './components/FirstPage'
+
 import ForgotPassword from './components/ForgotPassword'
+
 import VerifyOTP from './components/VerifyOTP'; 
+
 import NewPassword from './components/NewPassword';
 
+import Dashboard from './components/Dashboard';
+
+
 function App() {
+
   return (
-    <BrowserRouter>
+  <BrowserRouter>
       <Routes>
         <Route path="/" element={<FirstPage />}/>
         <Route path="signin" element={<SignIn />} />
@@ -18,9 +30,13 @@ function App() {
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="verify-otp" element={<VerifyOTP />} />
         <Route path="new-password" element={<NewPassword />} />
+        <Route path="dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>  
-  )
+    )
 }
 
 export default App
+
+
+
