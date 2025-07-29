@@ -1,26 +1,24 @@
 import React, { useState } from 'react';
-
-import { useNavigate } from 'react-router-dom';
-
-import { Link } from 'react-router-dom';
-
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 import Orb from './Orb'; 
 
 const SignUp = () => {
-
-  let navigate= useNavigate();
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
-    companyName: '',
-    newPassword: '',
-    currentPassword: '',
+    password: '',
+    username: '',
     acceptTerms: false
   });
 
-  
+  const [isLoading, setIsLoading] = useState(false);
   const [showPasswordStrength, setShowPasswordStrength] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { email, password, username } = formData;
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -39,6 +37,16 @@ const SignUp = () => {
   };
 
   const checkPasswordStrength = (password) => {
+    if (!password) {
+      return {
+        minLength: false,
+        lowercase: false,
+        uppercase: false,
+        numbers: false,
+        specialChars: false
+      };
+    }
+
     const checks = {
       minLength: password.length >= 6,
       lowercase: /[a-z]/.test(password),
@@ -49,27 +57,77 @@ const SignUp = () => {
     return checks;
   };
 
-  const passwordChecks = checkPasswordStrength(formData.newPassword);
+  const passwordChecks = checkPasswordStrength(formData.password);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
-  const handleGoogleSignup = () => {
-    console.log('Google signup clicked');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!formData.email || !formData.password || !formData.username) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!formData.acceptTerms) {
+      toast.error('Please accept the terms and conditions');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data } = await axios.post(
+        "http://localhost:4000/signup",
+        {
+          email: formData.email,
+          password: formData.password,
+          username: formData.username
+        },
+        { withCredentials: true }
+      );
+      
+      const { success, message } = data;
+      
+      if (success) {
+        toast.success(message);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1000);
+      } else {
+        toast.error(message);
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      
+      if (error.response) {
+        toast.error(error.response.data.message || 'Signup failed');
+      } else if (error.request) {
+        toast.error('Unable to connect to server. Please try again.');
+      } else {
+        toast.error('An unexpected error occurred');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+
+    // Clear form after submission
+    setFormData({
+      email: "",
+      password: "",
+      username: "",
+      acceptTerms: false
+    });
   };
 
   return (
-
     <>
-
-
       <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto mt-20">
-        {/* Grid */}
         <div className="grid items-center md:grid-cols-2 gap-8 lg:gap-12">
           <div>
-
             <div style={{ width: '100%', height: '450px', position: 'relative' }} className="mb-8">
               <Orb
                 hoverIntensity={0.3}
@@ -78,30 +136,20 @@ const SignUp = () => {
                 forceHoverState={false}
               />
             </div>
-        <p className="inline-block text-sm font-medium bg-clip-text bg-gradient-to-l from-blue-600 to-violet-500 text-transparent dark:from-blue-400 dark:to-violet-400">
+            <p className="inline-block text-sm font-medium bg-clip-text bg-gradient-to-l from-blue-600 to-violet-500 text-transparent dark:from-blue-400 dark:to-violet-400">
               NoteHive: Revolutionizing note-taking for 2024
             </p>
 
-            {/* Title */}
             <div className="mt-4 md:mb-12 max-w-2xl">
-              {/* <h1 className="mb-4 font-semibold text-gray-800 text-4xl lg:text-5xl dark:text-neutral-200">
-                Capture, organize, and sync your thoughts seamlessly
-              </h1> */}
               <p className="text-white-600">
                 Join thousands of users who trust NoteHive for intelligent note-taking. Experience AI-powered organization, real-time sync, and secure cloud storage.
               </p>
             </div>
-            {/* End Title */}
-
-            {/* End Blockquote */}
           </div>
-          {/* End Col */}
 
           <div>
-            {/* Form */}
             <form onSubmit={handleSubmit}>
               <div className="lg:max-w-lg lg:mx-auto lg:me-0 ms-auto">
-                {/* Card */}
                 <div className="p-4 sm:p-7 flex flex-col bg-white rounded-2xl shadow-lg dark:bg-neutral-900">
                   <div className="text-center">
                     <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">Start your free trial</h1>
@@ -114,63 +162,31 @@ const SignUp = () => {
                   </div>
 
                   <div className="mt-5">
-                    {/* <button 
-                      type="button" 
-                      onClick={handleGoogleSignup}
-                      className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-                    >
-                      <svg className="w-4 h-auto" width="46" height="47" viewBox="0 0 46 47" fill="none">
-                        <path d="M46 24.0287C46 22.09 45.8533 20.68 45.5013 19.2112H23.4694V27.9356H36.4069C36.1429 30.1094 34.7347 33.37 31.5957 35.5731L31.5663 35.8669L38.5191 41.2719L38.9885 41.3306C43.4477 37.2181 46 31.1669 46 24.0287Z" fill="#4285F4"/>
-                        <path d="M23.4694 47C29.8061 47 35.1161 44.9144 39.0179 41.3012L31.625 35.5437C29.6301 36.9244 26.9898 37.8937 23.4987 37.8937C17.2793 37.8937 12.0281 33.7812 10.1505 28.1412L9.88649 28.1706L2.61097 33.7812L2.52296 34.0456C6.36608 41.7125 14.287 47 23.4694 47Z" fill="#34A853"/>
-                        <path d="M10.1212 28.1413C9.62245 26.6725 9.32908 25.1156 9.32908 23.5C9.32908 21.8844 9.62245 20.3275 10.0918 18.8588V18.5356L2.75765 12.8369L2.52296 12.9544C0.909439 16.1269 0 19.7106 0 23.5C0 27.2894 0.909439 30.8731 2.49362 34.0456L10.1212 28.1413Z" fill="#FBBC05"/>
-                        <path d="M23.4694 9.07688C27.8699 9.07688 30.8622 10.9863 32.5344 12.5725L39.1645 6.11C35.0867 2.32063 29.8061 0 23.4694 0C14.287 0 6.36607 5.2875 2.49362 12.9544L10.0918 18.8588C11.9987 13.1894 17.25 9.07688 23.4694 9.07688Z" fill="#EB4335"/>
-                      </svg>
-                      Sign up with Google
-                    </button> */}
-
                     <div className="my-6 border-t border-gray-200 dark:border-neutral-700"></div>
 
-
-                    {/* Grid */}
                     <div className="grid grid-cols-2 gap-4">
-                      {/* First Name */}
-                      <div>
+                      
+                      {/* Username */}
+                      <div className="col-span-full">
                         <div className="relative">
                           <input 
                             type="text" 
-                            id="firstName" 
-                            name="firstName"
-                            value={formData.firstName}
+                            id="username" 
+                            name="username"
+                            value={formData.username}
                             onChange={handleInputChange}
+                            required
                             className="peer p-3 sm:p-4 block w-full border-gray-200 rounded-lg text-sm placeholder:text-transparent focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:ring-neutral-600 focus:pt-6 focus:pb-2 [&:not(:placeholder-shown)]:pt-6 [&:not(:placeholder-shown)]:pb-2" 
-                            placeholder="John"
+                            placeholder="Your username"
                           />
-                          <label htmlFor="firstName" className="absolute top-0 start-0 p-3 sm:p-4 h-full text-sm truncate pointer-events-none transition ease-in-out duration-100 border border-transparent origin-[0_0] dark:text-white peer-disabled:opacity-50 peer-disabled:pointer-events-none peer-focus:scale-90 peer-focus:translate-x-0.5 peer-focus:-translate-y-1.5 peer-focus:text-gray-500 dark:peer-focus:text-neutral-500 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:translate-x-0.5 peer-[:not(:placeholder-shown)]:-translate-y-1.5 peer-[:not(:placeholder-shown)]:text-gray-500 dark:peer-[:not(:placeholder-shown)]:text-neutral-500 dark:text-neutral-500">
-                            First name
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Last Name */}
-                      <div>
-                        <div className="relative">
-                          <input 
-                            type="text" 
-                            id="lastName" 
-                            name="lastName"
-                            value={formData.lastName}
-                            onChange={handleInputChange}
-                            className="peer p-3 sm:p-4 block w-full border-gray-200 rounded-lg text-sm placeholder:text-transparent focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:ring-neutral-600 focus:pt-6 focus:pb-2 [&:not(:placeholder-shown)]:pt-6 [&:not(:placeholder-shown)]:pb-2" 
-                            placeholder="Doe"
-                          />
-                          <label htmlFor="lastName" className="absolute top-0 start-0 p-3 sm:p-4 h-full text-sm truncate pointer-events-none transition ease-in-out duration-100 border border-transparent origin-[0_0] dark:text-white peer-disabled:opacity-50 peer-disabled:pointer-events-none peer-focus:scale-90 peer-focus:translate-x-0.5 peer-focus:-translate-y-1.5 peer-focus:text-gray-500 dark:peer-focus:text-neutral-500 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:translate-x-0.5 peer-[:not(:placeholder-shown)]:-translate-y-1.5 peer-[:not(:placeholder-shown)]:text-gray-500 dark:peer-[:not(:placeholder-shown)]:text-neutral-500 dark:text-neutral-500">
-                            Last name
+                          <label htmlFor="username" className="absolute top-0 start-0 p-3 sm:p-4 h-full text-sm truncate pointer-events-none transition ease-in-out duration-100 border border-transparent origin-[0_0] dark:text-white peer-disabled:opacity-50 peer-disabled:pointer-events-none peer-focus:scale-90 peer-focus:translate-x-0.5 peer-focus:-translate-y-1.5 peer-focus:text-gray-500 dark:peer-focus:text-neutral-500 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:translate-x-0.5 peer-[:not(:placeholder-shown)]:-translate-y-1.5 peer-[:not(:placeholder-shown)]:text-gray-500 dark:peer-[:not(:placeholder-shown)]:text-neutral-500 dark:text-neutral-500">
+                            Username
                           </label>
                         </div>
                       </div>
 
                       {/* Email */}
-                      <div>
+                      <div className="col-span-full">
                         <div className="relative">
                           <input 
                             type="email" 
@@ -178,6 +194,7 @@ const SignUp = () => {
                             name="email"
                             value={formData.email}
                             onChange={handleInputChange}
+                            required
                             className="peer p-3 sm:p-4 block w-full border-gray-200 rounded-lg text-sm placeholder:text-transparent focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:ring-neutral-600 focus:pt-6 focus:pb-2 [&:not(:placeholder-shown)]:pt-6 [&:not(:placeholder-shown)]:pb-2" 
                             placeholder="you@email.com"
                           />
@@ -187,45 +204,49 @@ const SignUp = () => {
                         </div>
                       </div>
 
-                      {/* Company Name */}
-                      <div>
-                        <div className="relative">
-                          <input 
-                            type="text" 
-                            id="companyName" 
-                            name="companyName"
-                            value={formData.companyName}
-                            onChange={handleInputChange}
-                            className="peer p-3 sm:p-4 block w-full border-gray-200 rounded-lg text-sm placeholder:text-transparent focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:ring-neutral-600 focus:pt-6 focus:pb-2 [&:not(:placeholder-shown)]:pt-6 [&:not(:placeholder-shown)]:pb-2" 
-                            placeholder="Preline"
-                          />
-                          <label htmlFor="companyName" className="absolute top-0 start-0 p-3 sm:p-4 h-full text-sm truncate pointer-events-none transition ease-in-out duration-100 border border-transparent origin-[0_0] dark:text-white peer-disabled:opacity-50 peer-disabled:pointer-events-none peer-focus:scale-90 peer-focus:translate-x-0.5 peer-focus:-translate-y-1.5 peer-focus:text-gray-500 dark:peer-focus:text-neutral-500 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:translate-x-0.5 peer-[:not(:placeholder-shown)]:-translate-y-1.5 peer-[:not(:placeholder-shown)]:text-gray-500 dark:peer-[:not(:placeholder-shown)]:text-neutral-500 dark:text-neutral-500">
-                            Company name
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* New Password */}
+                      {/* Password */}
                       <div className="relative col-span-full">
                         <div className="relative">
                           <input 
-                            type="password" 
-                            id="newPassword" 
-                            name="newPassword"
-                            value={formData.newPassword}
+                            type={showPassword ? "text" : "password"}
+                            id="password" 
+                            name="password"
+                            value={formData.password}
                             onChange={handleInputChange}
                             onFocus={handlePasswordFocus}
                             onBlur={handlePasswordBlur}
+                            required
                             className="peer p-3 sm:p-4 block w-full border-gray-200 rounded-lg text-sm placeholder:text-transparent focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:ring-neutral-600 focus:pt-6 focus:pb-2 [&:not(:placeholder-shown)]:pt-6 [&:not(:placeholder-shown)]:pb-2" 
                             placeholder="********"
                           />
-                          <label htmlFor="newPassword" className="absolute top-0 start-0 p-3 sm:p-4 h-full text-sm truncate pointer-events-none transition ease-in-out duration-100 border border-transparent origin-[0_0] dark:text-white peer-disabled:opacity-50 peer-disabled:pointer-events-none peer-focus:scale-90 peer-focus:translate-x-0.5 peer-focus:-translate-y-1.5 peer-focus:text-gray-500 dark:peer-focus:text-neutral-500 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:translate-x-0.5 peer-[:not(:placeholder-shown)]:-translate-y-1.5 peer-[:not(:placeholder-shown)]:text-gray-500 dark:peer-[:not(:placeholder-shown)]:text-neutral-500 dark:text-neutral-500">
-                            New password
+                          <label htmlFor="password" className="absolute top-0 start-0 p-3 sm:p-4 h-full text-sm truncate pointer-events-none transition ease-in-out duration-100 border border-transparent origin-[0_0] dark:text-white peer-disabled:opacity-50 peer-disabled:pointer-events-none peer-focus:scale-90 peer-focus:translate-x-0.5 peer-focus:-translate-y-1.5 peer-focus:text-gray-500 dark:peer-focus:text-neutral-500 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:translate-x-0.5 peer-[:not(:placeholder-shown)]:-translate-y-1.5 peer-[:not(:placeholder-shown)]:text-gray-500 dark:peer-[:not(:placeholder-shown)]:text-neutral-500 dark:text-neutral-500">
+                            Password
                           </label>
+                          
+                          {/* Toggle Password Visibility Button */}
+                          <button
+                            type="button"
+                            onClick={togglePasswordVisibility}
+                            className="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-none focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
+                          >
+                            {showPassword ? (
+                              <svg className="shrink-0 size-3.5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                                <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                                <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                                <line x1="2" x2="22" y1="2" y2="22"></line>
+                              </svg>
+                            ) : (
+                              <svg className="shrink-0 size-3.5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                              </svg>
+                            )}
+                          </button>
                         </div>
 
                         {/* Password Strength Indicator */}
-                        {(showPasswordStrength || formData.newPassword) && (
+                        {showPasswordStrength && formData.password && (
                           <div className="absolute z-10 w-full bg-gray-100 rounded-lg p-4 dark:bg-neutral-950 mt-2">
                             <div className="flex mt-2 -mx-1">
                               {Object.values(passwordChecks).map((check, index) => (
@@ -292,28 +313,9 @@ const SignUp = () => {
                           </div>
                         )}
                       </div>
-
-                      {/* Current Password */}
-                      <div className="col-span-full">
-                        <div className="relative">
-                          <input 
-                            type="password" 
-                            id="currentPassword" 
-                            name="currentPassword"
-                            value={formData.currentPassword}
-                            onChange={handleInputChange}
-                            className="peer p-3 sm:p-4 block w-full border-gray-200 rounded-lg text-sm placeholder:text-transparent focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:ring-neutral-600 focus:pt-6 focus:pb-2 [&:not(:placeholder-shown)]:pt-6 [&:not(:placeholder-shown)]:pb-2" 
-                            placeholder="********"
-                          />
-                          <label htmlFor="currentPassword" className="absolute top-0 start-0 p-3 sm:p-4 h-full text-sm truncate pointer-events-none transition ease-in-out duration-100 border border-transparent origin-[0_0] dark:text-white peer-disabled:opacity-50 peer-disabled:pointer-events-none peer-focus:scale-90 peer-focus:translate-x-0.5 peer-focus:-translate-y-1.5 peer-focus:text-gray-500 dark:peer-focus:text-neutral-500 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:translate-x-0.5 peer-[:not(:placeholder-shown)]:-translate-y-1.5 peer-[:not(:placeholder-shown)]:text-gray-500 dark:peer-[:not(:placeholder-shown)]:text-neutral-500 dark:text-neutral-500">
-                            Current password
-                          </label>
-                        </div>
-                      </div>
                     </div>
-                    {/* End Grid */}
 
-                    {/* Checkbox */}
+                    {/* Terms Checkbox */}
                     <div className="mt-5 flex items-center">
                       <div className="flex">
                         <input 
@@ -331,30 +333,35 @@ const SignUp = () => {
                         </label>
                       </div>
                     </div>
-                    {/* End Checkbox */}
 
                     <div className="mt-5">
                       <button 
                         type="submit" 
+                        disabled={isLoading}
                         className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
                       >
-                        Get started
+                        {isLoading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Creating Account...
+                          </>
+                        ) : (
+                          'Get started'
+                        )}
                       </button>
                     </div>
                   </div>
                 </div>
-                {/* End Card */}
               </div>
             </form>
-            {/* End Form */}
           </div>
-          {/* End Col */}
         </div>
-        {/* End Grid */}
-        </div>
-        </>
-    );
+      </div>
+    </>
+  );
+};
 
-}
-
-export default SignUp;   
+export default SignUp;
