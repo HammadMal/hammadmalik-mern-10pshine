@@ -21,6 +21,9 @@ import Dashboard from './components/Dashboard';
 
 import NoteEditor from './components/NoteEditor';
 
+import { ToastContainer } from 'react-toastify';
+
+
 
 function App() {
 
@@ -37,6 +40,19 @@ function App() {
         <Route path="note-editor" element={<NoteEditor />} />
         <Route path ="note-editor/:noteId" element={<NoteEditor />} />
       </Routes>
+
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </BrowserRouter>  
     )
 }
