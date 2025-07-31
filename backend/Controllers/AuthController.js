@@ -24,7 +24,6 @@ module.exports.Signup = async (req, res, next) => {
   }
 };
 
-
 module.exports.Login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -41,6 +40,13 @@ module.exports.Login = async (req, res, next) => {
       return res.status(401).json({ 
         success: false,
         message: 'Incorrect email or password' 
+      });
+    }
+    
+    if (user.googleId && user.password === 'google-oauth-user') {
+      return res.status(401).json({ 
+        success: false,
+        message: 'Please use Google Sign In for this account' 
       });
     }
     
