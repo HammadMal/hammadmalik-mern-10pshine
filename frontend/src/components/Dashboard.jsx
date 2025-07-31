@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-
 import { useNavigate } from 'react-router-dom'; 
+import { toast } from 'react-toastify'; // Make sure you have this imported
 import { 
   Plus, 
   Search, 
@@ -17,32 +17,91 @@ import {
   Grid,
   List,
   SortAsc,
-  SortDesc
+  SortDesc,
+  LogOut, // Icon for logout
+  User    // Icon for user display
 } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  
   // Mock navigation functions - replace with actual routing
   const navigateToEditor = (noteId = null) => {
-    // console.log(`Navigate to editor${noteId ? ` with note ${noteId}` : ' for new note'}`);
-
-
     if (noteId) {
-
       navigate(`/note-editor/${noteId}`); // Navigate to note editor with existing note
     }
     else {
-      // Navigate to note editor for new note
-
       navigate('/note-editor'); // Navigate to note editor for new note
     }
   };
+
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [sortBy, setSortBy] = useState('modified'); // 'modified', 'created', 'title'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc' or 'desc'
   const [filterBy, setFilterBy] = useState('all'); // 'all', 'starred', 'recent'
   const [showDropdown, setShowDropdown] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); // State to store current user info
+
+  // Check user authentication status on component mount
+  useEffect(() => {
+    checkUserAuth();
+  }, []);
+
+  // Function to check if user is authenticated
+  const checkUserAuth = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/', {
+        method: 'POST',
+        credentials: 'include' // Important: includes cookies in the request
+      });
+      
+      const data = await response.json();
+      
+      if (data.status) {
+        // User is authenticated
+        setCurrentUser({ username: data.user });
+      } else {
+        // User is not authenticated, redirect to login
+        toast.error('Please log in to access the dashboard');
+        navigate('/signin');
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      toast.error('Authentication failed');
+      navigate('/signin');
+    }
+  };
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      // Method 1: Simple client-side logout (clearing cookie)
+      // This works because we're just clearing the token cookie
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      
+      // Optional Method 2: You could also create a backend logout endpoint
+      // await fetch('http://localhost:4000/logout', {
+      //   method: 'POST',
+      //   credentials: 'include'
+      // });
+      
+      // Clear user state
+      setCurrentUser(null);
+      
+      // Show success message
+      toast.success('Logged out successfully!');
+      
+      // Redirect to signin page after a short delay
+      setTimeout(() => {
+        navigate('/signin');
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Logout failed. Please try again.');
+    }
+  };
 
   // Mock data - replace with actual API call
   const [notes, setNotes] = useState([
@@ -191,20 +250,48 @@ const Dashboard = () => {
               </span>
             </div>
             
-            <motion.button
-              onClick={handleCreateNote}
-              className="
-                px-8 py-3 transform rounded-lg bg-black text-white font-medium 
-                transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 
-                shadow-lg hover:shadow-xl flex items-center gap-2
-                dark:bg-white dark:text-black dark:hover:bg-gray-200
-              "
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Plus className="w-5 h-5" />
-              New Note
-            </motion.button>
+            <div className="flex items-center gap-4">
+              {/* User Info */}
+              {currentUser && (
+                <div className="flex items-center gap-3 px-3 py-2 bg-white/5 rounded-lg">
+                  <User className="w-4 h-4 text-gray-300" />
+                  <span className="text-sm text-gray-300">
+                    {currentUser.username}
+                  </span>
+                </div>
+              )}
+
+              {/* New Note Button */}
+              <motion.button
+                onClick={handleCreateNote}
+                className="
+                  px-6 py-3 transform rounded-lg bg-black text-white font-medium 
+                  transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 
+                  shadow-lg hover:shadow-xl flex items-center gap-2
+                  dark:bg-white dark:text-black dark:hover:bg-gray-200
+                "
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Plus className="w-5 h-5" />
+                New Note
+              </motion.button>
+
+              {/* Logout Button */}
+              <motion.button
+                onClick={handleLogout}
+                className="
+                  px-6 py-3 transform rounded-lg bg-red-600 text-white font-medium 
+                  transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-700 
+                  shadow-lg hover:shadow-xl flex items-center gap-2
+                "
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <LogOut className="w-5 h-5" />
+                Sign Out
+              </motion.button>
+            </div>
           </div>
         </div>
       </motion.header>
@@ -523,11 +610,13 @@ const Dashboard = () => {
         )}
       </motion.div>
 
-      {/* Click outside to close dropdown */}
+      {/* Click outside to close dropdowns */}
       {showDropdown && (
         <div 
-          className="fixed inset-0 z-5" 
-          onClick={() => setShowDropdown(null)}
+          className="fixed inset-0 z-40" 
+          onClick={() => {
+            setShowDropdown(null);
+          }}
         />
       )}
     </div>
