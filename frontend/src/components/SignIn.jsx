@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Orb from './Orb'; 
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -13,6 +14,21 @@ const SignIn = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  // Handle OAuth callback messages
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const authStatus = urlParams.get('auth');
+    const errorParam = urlParams.get('error');
+
+    if (authStatus === 'success') {
+      toast.success('Successfully logged in with Google!');
+      // Redirect to dashboard after showing success message
+      setTimeout(() => navigate('/dashboard'), 2000);
+    } else if (errorParam === 'oauth_failed') {
+      toast.error('Google authentication failed. Please try again.');
+    }
+  }, [location, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -83,8 +99,10 @@ const SignIn = () => {
     }
   };
 
-  const handleGoogleSignup = () => {
-    toast.info('Google login coming soon!');
+  // Updated Google OAuth handler
+  const handleGoogleSignIn = () => {
+    // Redirect to backend Google OAuth route
+    window.location.href = 'http://localhost:4000/auth/google';
   };
 
   return (
@@ -131,8 +149,8 @@ const SignIn = () => {
                   <div className="mt-5">
                     <button 
                       type="button" 
-                      onClick={handleGoogleSignup}
-                      className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+                      onClick={handleGoogleSignIn}
+                      className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800 transition-all duration-300"
                     >
                       <svg className="w-4 h-auto" width="46" height="47" viewBox="0 0 46 47" fill="none">
                         <path d="M46 24.0287C46 22.09 45.8533 20.68 45.5013 19.2112H23.4694V27.9356H36.4069C36.1429 30.1094 34.7347 33.37 31.5957 35.5731L31.5663 35.8669L38.5191 41.2719L38.9885 41.3306C43.4477 37.2181 46 31.1669 46 24.0287Z" fill="#4285F4"/>

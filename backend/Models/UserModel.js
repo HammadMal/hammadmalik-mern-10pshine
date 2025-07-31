@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Your password is required"],
   },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true 
+  },
   createdAt: {
     type: Date,
     default: new Date(),
@@ -22,7 +27,9 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre("save", async function () {
-  this.password = await bcrypt.hash(this.password, 12);
+  if (this.isModified('password') && this.password !== 'google-oauth-user') {
+    this.password = await bcrypt.hash(this.password, 12);
+  }
 });
 
 module.exports = mongoose.model("User", userSchema);

@@ -6,5 +6,18 @@ router.post("/signup", Signup);
 router.post("/login", Login);
 router.post('/',userVerification)
 
+router.post('/logout', (req, res) => {
+ res.clearCookie('token', {
+   httpOnly: false,
+   secure: process.env.NODE_ENV === 'production',
+   sameSite: 'lax'
+ });
+ 
+ res.status(200).json({
+   success: true,
+   message: 'Logged out successfully'
+ });
+});
+
 
 module.exports = router;
