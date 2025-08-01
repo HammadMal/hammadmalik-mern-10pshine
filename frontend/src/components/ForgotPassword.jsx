@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Orb from './Orb';
 
 import { ToastContainer, toast } from 'react-toastify';
-
+const API_BASE_URL = 'http://localhost:4000'; 
 
 const ForgotPassword = () => {
   let navigate = useNavigate();
@@ -12,6 +12,8 @@ const ForgotPassword = () => {
   const [formData, setFormData] = useState({
     email: ''
   });
+
+  const [loading, setLoading] = useState(false); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,23 +23,50 @@ const ForgotPassword = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
+    
     console.log('Form submitted:', formData);
 
-    console.log('Send OTP Clicked');
-
     if (!formData.email) {
-    toast("Please enter your email address");
-    return;
+      toast.error("Please enter your email address");
+      return;
     }
-    
-    navigate('/verify-otp');
+
+    setLoading(true); 
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/password-reset/forgot`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: formData.email }) 
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send OTP');
+      }
+      
+      toast.success(data.message || 'OTP sent successfully!');
+      
+      setTimeout(() => {
+        navigate('/verify-otp', { state: { email: formData.email } });
+      }, 2000);
+
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      toast.error(error.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false); 
+    }
   };
 
   return (
     <>
-          <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -105,8 +134,10 @@ const ForgotPassword = () => {
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
+                          disabled={loading} // Disable input when loading
                           className="peer p-3 sm:p-4 block w-full border-gray-200 rounded-lg text-sm placeholder:text-transparent focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:focus:ring-neutral-600 focus:pt-6 focus:pb-2 [&:not(:placeholder-shown)]:pt-6 [&:not(:placeholder-shown)]:pb-2" 
                           placeholder="you@email.com"
+                          required
                         />
                         <label htmlFor="email" className="absolute top-0 start-0 p-3 sm:p-4 h-full text-sm truncate pointer-events-none transition ease-in-out duration-100 border border-transparent origin-[0_0] dark:text-white peer-disabled:opacity-50 peer-disabled:pointer-events-none peer-focus:scale-90 peer-focus:translate-x-0.5 peer-focus:-translate-y-1.5 peer-focus:text-gray-500 dark:peer-focus:text-neutral-500 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:translate-x-0.5 peer-[:not(:placeholder-shown)]:-translate-y-1.5 peer-[:not(:placeholder-shown)]:text-gray-500 dark:peer-[:not(:placeholder-shown)]:text-neutral-500 dark:text-neutral-500">
                           Email
@@ -117,10 +148,10 @@ const ForgotPassword = () => {
                     <div className="mt-5">
                       <button 
                         type="submit" 
-                        onClick={handleSubmit}
+                        disabled={loading} // Disable button when loading
                         className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
                       >
-                        Send OTP
+                        {loading ? 'Sending...' : 'Send OTP'}
                       </button>
                     </div>
                   </div>
