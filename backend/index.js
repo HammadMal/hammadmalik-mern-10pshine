@@ -8,6 +8,7 @@ require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const authRoute = require("./Routes/AuthRoute");
 const googleAuthRoute = require("./Routes/GoogleAuthRoute");
+const passwordResetRoute = require("./Routes/PasswordResetRoute"); 
 const { MONGO_URL, PORT } = process.env;
 
 mongoose
@@ -33,7 +34,6 @@ app.use(session({
   }
 }));
 
-// Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -46,6 +46,7 @@ app.get("/test", (req, res) => {
 
 app.use("/", authRoute);
 app.use("/auth", googleAuthRoute);
+app.use("/password-reset", passwordResetRoute); // New route
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
