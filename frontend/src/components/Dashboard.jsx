@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom'; 
-import { toast } from 'react-toastify'; // Make sure you have this imported
+import { toast } from 'react-toastify';
+import apiService from '../services/apiService';
 import { 
   Plus, 
   Search, 
@@ -18,51 +19,64 @@ import {
   List,
   SortAsc,
   SortDesc,
-  LogOut, // Icon for logout
-  User    // Icon for user display
+  LogOut,
+  User,
+  Loader
 } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   
-  // Mock navigation functions - replace with actual routing
-  const navigateToEditor = (noteId = null) => {
-    if (noteId) {
-      navigate(`/note-editor/${noteId}`); // Navigate to note editor with existing note
-    }
-    else {
-      navigate('/note-editor'); // Navigate to note editor for new note
-    }
-  };
-
+  // State management
+  const [notes, setNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
-  const [sortBy, setSortBy] = useState('modified'); // 'modified', 'created', 'title'
-  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' or 'desc'
-  const [filterBy, setFilterBy] = useState('all'); // 'all', 'starred', 'recent'
+  const [viewMode, setViewMode] = useState('grid');
+  const [sortBy, setSortBy] = useState('modifiedAt');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [filterBy, setFilterBy] = useState('all');
   const [showDropdown, setShowDropdown] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null); // State to store current user info
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [noteStats, setNoteStats] = useState({
+    totalNotes: 0,
+    starredNotes: 0,
+    archivedNotes: 0,
+    recentNotes: 0
+  });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalNotes: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
 
-  // Check user authentication status on component mount
+  // Check authentication and load data on mount
   useEffect(() => {
     checkUserAuth();
   }, []);
 
-  // Function to check if user is authenticated
+  // Load notes when filters change
+  useEffect(() => {
+    if (currentUser) {
+      loadNotes();
+    }
+  }, [currentUser, searchTerm, filterBy, sortBy, sortOrder]);
+
+  // Load note stats
+  useEffect(() => {
+    if (currentUser) {
+      loadNoteStats();
+    }
+  }, [currentUser]);
+
   const checkUserAuth = async () => {
     try {
-      const response = await fetch('http://localhost:4000/', {
-        method: 'POST',
-        credentials: 'include' // Important: includes cookies in the request
-      });
+      const response = await apiService.checkAuth();
       
-      const data = await response.json();
-      
-      if (data.status) {
-        // User is authenticated
-        setCurrentUser({ username: data.user });
+      if (response.status) {
+        setCurrentUser({ username: response.user });
       } else {
-        // User is not authenticated, redirect to login
         toast.error('Please log in to access the dashboard');
         navigate('/signin');
       }
@@ -70,102 +84,128 @@ const Dashboard = () => {
       console.error('Auth check failed:', error);
       toast.error('Authentication failed');
       navigate('/signin');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Logout function
+  const loadNotes = async () => {
+    try {
+      setLoading(true);
+      const queryParams = {
+        search: searchTerm || undefined,
+        filter: filterBy,
+        sortBy,
+        sortOrder,
+        page: 1,
+        limit: 20
+      };
+
+      const response = await apiService.getNotes(queryParams);
+      setNotes(response.notes);
+      setPagination(response.pagination);
+    } catch (error) {
+      console.error('Failed to load notes:', error);
+      toast.error('Failed to load notes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadNoteStats = async () => {
+    try {
+      const response = await apiService.getNoteStats();
+      setNoteStats(response.stats);
+    } catch (error) {
+      console.error('Failed to load note stats:', error);
+    }
+  };
+
   const handleLogout = async () => {
     try {
-      // Method 1: Simple client-side logout (clearing cookie)
-      // This works because we're just clearing the token cookie
-      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      
-      // Optional Method 2: You could also create a backend logout endpoint
-      // await fetch('http://localhost:4000/logout', {
-      //   method: 'POST',
-      //   credentials: 'include'
-      // });
-      
-      // Clear user state
+      await apiService.logout();
       setCurrentUser(null);
-      
-      // Show success message
       toast.success('Logged out successfully!');
-      
-      // Redirect to signin page after a short delay
       setTimeout(() => {
         navigate('/signin');
       }, 1000);
-      
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Logout failed. Please try again.');
     }
   };
 
-  // Mock data - replace with actual API call
-  const [notes, setNotes] = useState([
-    {
-      id: 1,
-      title: "Project Planning Notes",
-      content: "Initial brainstorming for the new product launch. Key features to include: user authentication, dashboard design, note organization...",
-      createdAt: "2024-01-15T10:30:00Z",
-      modifiedAt: "2024-01-20T14:22:00Z",
-      isStarred: true,
-      tags: ["project", "planning"],
-      wordCount: 234
-    },
-    {
-      id: 2,
-      title: "Meeting Notes - Team Sync",
-      content: "Weekly team synchronization meeting. Discussed progress on current sprint, blockers, and next steps...",
-      createdAt: "2024-01-18T09:00:00Z",
-      modifiedAt: "2024-01-18T09:45:00Z",
-      isStarred: false,
-      tags: ["meeting", "team"],
-      wordCount: 156
-    },
-    {
-      id: 3,
-      title: "Research: Note-taking Apps",
-      content: "Comparative analysis of popular note-taking applications. Features, pricing, user experience, and market positioning...",
-      createdAt: "2024-01-12T16:20:00Z",
-      modifiedAt: "2024-01-19T11:30:00Z",
-      isStarred: true,
-      tags: ["research", "analysis"],
-      wordCount: 423
-    },
-    {
-      id: 4,
-      title: "Ideas for Blog Post",
-      content: "Collection of ideas for upcoming blog posts about productivity, technology trends, and user experience design...",
-      createdAt: "2024-01-10T13:15:00Z",
-      modifiedAt: "2024-01-17T16:40:00Z",
-      isStarred: false,
-      tags: ["writing", "ideas"],
-      wordCount: 89
-    },
-    {
-      id: 5,
-      title: "Learning Notes: React Hooks",
-      content: "Understanding useState, useEffect, useContext, and custom hooks. Examples and best practices for modern React development...",
-      createdAt: "2024-01-08T20:00:00Z",
-      modifiedAt: "2024-01-16T22:15:00Z",
-      isStarred: true,
-      tags: ["learning", "react"],
-      wordCount: 312
-    },
-    {
-      id: 6,
-      title: "Travel Itinerary",
-      content: "Planning for upcoming business trip. Flight details, hotel reservations, meeting schedules, and local recommendations...",
-      createdAt: "2024-01-05T11:45:00Z",
-      modifiedAt: "2024-01-14T13:20:00Z",
-      isStarred: false,
-      tags: ["travel", "planning"],
-      wordCount: 178
+  const navigateToEditor = (noteId = null) => {
+    if (noteId) {
+      navigate(`/note-editor/${noteId}`);
+    } else {
+      navigate('/note-editor');
     }
-  ]);
+  };
+
+  const handleCreateNote = () => {
+    navigateToEditor();
+  };
+
+  const handleNoteClick = (noteId) => {
+    navigateToEditor(noteId);
+  };
+
+  const toggleStar = async (noteId, e) => {
+    e.stopPropagation();
+    try {
+      await apiService.toggleStar(noteId);
+      
+      // Update local state
+      setNotes(notes.map(note => 
+        note._id === noteId ? { ...note, isStarred: !note.isStarred } : note
+      ));
+      
+      // Reload stats
+      loadNoteStats();
+      
+      toast.success('Note updated successfully');
+    } catch (error) {
+      console.error('Failed to toggle star:', error);
+      toast.error('Failed to update note');
+    }
+  };
+
+  const handleArchive = async (noteId, e) => {
+    e.stopPropagation();
+    try {
+      await apiService.toggleArchive(noteId);
+      
+      // Remove from current view if we're not showing archived notes
+      if (filterBy !== 'archived') {
+        setNotes(notes.filter(note => note._id !== noteId));
+      }
+      
+      loadNoteStats();
+      toast.success('Note archived successfully');
+    } catch (error) {
+      console.error('Failed to archive note:', error);
+      toast.error('Failed to archive note');
+    }
+  };
+
+  const handleDelete = async (noteId, e) => {
+    e.stopPropagation();
+    
+    if (!window.confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await apiService.deleteNote(noteId);
+      setNotes(notes.filter(note => note._id !== noteId));
+      loadNoteStats();
+      toast.success('Note deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete note:', error);
+      toast.error('Failed to delete note');
+    }
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -179,58 +219,21 @@ const Dashboard = () => {
     return date.toLocaleDateString();
   };
 
-  const filteredAndSortedNotes = notes
-    .filter(note => {
-      const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-      switch (filterBy) {
-        case 'starred': return matchesSearch && note.isStarred;
-        case 'recent': 
-          const recent = new Date();
-          recent.setDate(recent.getDate() - 7);
-          return matchesSearch && new Date(note.modifiedAt) > recent;
-        default: return matchesSearch;
-      }
-    })
-    .sort((a, b) => {
-      let comparison = 0;
-      switch (sortBy) {
-        case 'title':
-          comparison = a.title.localeCompare(b.title);
-          break;
-        case 'created':
-          comparison = new Date(a.createdAt) - new Date(b.createdAt);
-          break;
-        case 'modified':
-        default:
-          comparison = new Date(a.modifiedAt) - new Date(b.modifiedAt);
-          break;
-      }
-      return sortOrder === 'desc' ? -comparison : comparison;
-    });
-
-  const handleCreateNote = () => {
-    // Navigate to note editor with new note
-    navigateToEditor();
-  };
-
-  const handleNoteClick = (noteId) => {
-    // Navigate to note editor with existing note
-    navigateToEditor(noteId);
-  };
-
-  const toggleStar = (noteId, e) => {
-    e.stopPropagation();
-    setNotes(notes.map(note => 
-      note.id === noteId ? { ...note, isStarred: !note.isStarred } : note
-    ));
-  };
-
   const toggleSort = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
+
+  // Loading state
+  if (loading && !currentUser) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black">
@@ -246,7 +249,7 @@ const Dashboard = () => {
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-bold text-white">My Notes</h1>
               <span className="px-3 py-1 bg-white/10 rounded-full text-sm text-gray-300">
-                {filteredAndSortedNotes.length} notes
+                {pagination.totalNotes} notes
               </span>
             </div>
             
@@ -337,6 +340,7 @@ const Dashboard = () => {
               <option value="all">All Notes</option>
               <option value="starred">Starred</option>
               <option value="recent">Recent</option>
+              <option value="archived">Archived</option>
             </select>
 
             {/* Sort */}
@@ -350,8 +354,8 @@ const Dashboard = () => {
                 transition-all duration-300
               "
             >
-              <option value="modified">Last Modified</option>
-              <option value="created">Date Created</option>
+              <option value="modifiedAt">Last Modified</option>
+              <option value="createdAt">Date Created</option>
               <option value="title">Title</option>
             </select>
 
@@ -388,8 +392,16 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-20">
+            <Loader className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
+            <p className="text-gray-400">Loading notes...</p>
+          </div>
+        )}
+
         {/* Notes Grid/List */}
-        {filteredAndSortedNotes.length === 0 ? (
+        {!loading && notes.length === 0 ? (
           <motion.div 
             className="text-center py-20"
             initial={{ opacity: 0 }}
@@ -423,15 +435,15 @@ const Dashboard = () => {
               </motion.button>
             )}
           </motion.div>
-        ) : (
+        ) : !loading && (
           <div className={
             viewMode === 'grid' 
               ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
               : 'space-y-4'
           }>
-            {filteredAndSortedNotes.map((note, index) => (
+            {notes.map((note, index) => (
               <motion.div
-                key={note.id}
+                key={note._id}
                 className={`
                   relative cursor-pointer group
                   ${viewMode === 'grid' 
@@ -443,7 +455,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                onClick={() => handleNoteClick(note.id)}
+                onClick={() => handleNoteClick(note._id)}
                 whileHover={{ 
                   boxShadow: "0 10px 25px -5px rgba(255, 255, 255, 0.1)",
                 }}
@@ -464,7 +476,7 @@ const Dashboard = () => {
                       
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={(e) => toggleStar(note.id, e)}
+                          onClick={(e) => toggleStar(note._id, e)}
                           className={`p-1 rounded-lg transition-all duration-300 ${
                             note.isStarred 
                               ? 'text-yellow-400 hover:text-yellow-300' 
@@ -478,25 +490,44 @@ const Dashboard = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setShowDropdown(showDropdown === note.id ? null : note.id);
+                              setShowDropdown(showDropdown === note._id ? null : note._id);
                             }}
                             className="p-1 text-gray-500 hover:text-white rounded-lg transition-colors duration-300"
                           >
                             <MoreVertical className="w-5 h-5" />
                           </button>
                           
-                          {showDropdown === note.id && (
+                          {showDropdown === note._id && (
                             <div className="absolute right-0 top-8 w-48 bg-gray-800 border border-white/10 rounded-lg shadow-xl z-10">
                               <div className="py-2">
-                                <button className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2">
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowDropdown(null);
+                                    handleNoteClick(note._id);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2"
+                                >
                                   <Edit3 className="w-4 h-4" />
                                   Edit
                                 </button>
-                                <button className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2">
+                                <button 
+                                  onClick={(e) => {
+                                    setShowDropdown(null);
+                                    handleArchive(note._id, e);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2"
+                                >
                                   <Archive className="w-4 h-4" />
                                   Archive
                                 </button>
-                                <button className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2">
+                                <button 
+                                  onClick={(e) => {
+                                    setShowDropdown(null);
+                                    handleDelete(note._id, e);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
+                                >
                                   <Trash2 className="w-4 h-4" />
                                   Delete
                                 </button>
@@ -509,7 +540,7 @@ const Dashboard = () => {
 
                     {/* Content Preview */}
                     <p className="text-gray-300 text-sm line-clamp-3 mb-4">
-                      {note.content}
+                      {note.content.replace(/<[^>]*>/g, '')} {/* Strip HTML for preview */}
                     </p>
 
                     {/* Footer */}
@@ -544,7 +575,7 @@ const Dashboard = () => {
                         )}
                       </div>
                       <p className="text-gray-300 text-sm line-clamp-2 mb-2">
-                        {note.content}
+                        {note.content.replace(/<[^>]*>/g, '')}
                       </p>
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <span>{formatDate(note.modifiedAt)}</span>
@@ -561,7 +592,7 @@ const Dashboard = () => {
                     
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={(e) => toggleStar(note.id, e)}
+                        onClick={(e) => toggleStar(note._id, e)}
                         className={`p-2 rounded-lg transition-all duration-300 ${
                           note.isStarred 
                             ? 'text-yellow-400 hover:text-yellow-300' 
@@ -575,25 +606,44 @@ const Dashboard = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setShowDropdown(showDropdown === note.id ? null : note.id);
+                            setShowDropdown(showDropdown === note._id ? null : note._id);
                           }}
                           className="p-2 text-gray-500 hover:text-white rounded-lg transition-colors duration-300"
                         >
                           <MoreVertical className="w-5 h-5" />
                         </button>
                         
-                        {showDropdown === note.id && (
+                        {showDropdown === note._id && (
                           <div className="absolute right-0 top-8 w-48 bg-gray-800 border border-white/10 rounded-lg shadow-xl z-10">
                             <div className="py-2">
-                              <button className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowDropdown(null);
+                                  handleNoteClick(note._id);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2"
+                              >
                                 <Edit3 className="w-4 h-4" />
                                 Edit
                               </button>
-                              <button className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2">
+                              <button 
+                                onClick={(e) => {
+                                  setShowDropdown(null);
+                                  handleArchive(note._id, e);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2"
+                              >
                                 <Archive className="w-4 h-4" />
                                 Archive
                               </button>
-                              <button className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2">
+                              <button 
+                                onClick={(e) => {
+                                  setShowDropdown(null);
+                                  handleDelete(note._id, e);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
+                              >
                                 <Trash2 className="w-4 h-4" />
                                 Delete
                               </button>

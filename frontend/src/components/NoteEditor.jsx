@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import apiService from '../services/apiService';
 import { 
   ArrowLeft, 
   Save, 
@@ -22,13 +24,15 @@ import {
   AlignRight,
   Undo,
   Redo,
-  Eye,
-  EyeOff,
+  // Eye,        // Removed preview icons
+  // EyeOff,     // Removed preview icons
   Star,
   Hash,
   Calendar,
   Clock,
-  Palette
+  Palette,
+  Loader,
+  FileText
 } from 'lucide-react';
 
 const NoteEditor = () => {
@@ -37,107 +41,21 @@ const NoteEditor = () => {
   const editorRef = useRef(null);
   const titleRef = useRef(null);
 
-  // Debug function to test execCommand support
-  useEffect(() => {
-    if (editorRef.current) {
-      console.log('Browser execCommand support:');
-      console.log('- bold:', document.queryCommandSupported('bold'));
-      console.log('- italic:', document.queryCommandSupported('italic'));
-      console.log('- insertUnorderedList:', document.queryCommandSupported('insertUnorderedList'));
-      console.log('- insertOrderedList:', document.queryCommandSupported('insertOrderedList'));
-    }
-  }, []);
-
-  // Add styles for the editor
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      .editor-content:empty:before {
-        content: attr(data-placeholder);
-        color: #6b7280;
-        pointer-events: none;
-        position: absolute;
-      }
-      .editor-content:focus:empty:before {
-        content: attr(data-placeholder);
-        color: #6b7280;
-        pointer-events: none;
-        position: absolute;
-      }
-      .editor-content h1 { 
-        font-size: 1.5rem !important; 
-        font-weight: bold !important; 
-        margin-bottom: 1rem !important; 
-        color: #ffffff !important;
-      }
-      .editor-content h2 { 
-        font-size: 1.25rem !important; 
-        font-weight: 600 !important; 
-        margin-bottom: 0.75rem !important; 
-        color: #ffffff !important;
-      }
-      .editor-content h3 { 
-        font-size: 1.125rem !important; 
-        font-weight: 500 !important; 
-        margin-bottom: 0.5rem !important; 
-        color: #ffffff !important;
-      }
-      .editor-content blockquote { 
-        border-left: 4px solid #3b82f6 !important; 
-        padding-left: 1rem !important; 
-        margin: 1rem 0 !important; 
-        font-style: italic !important;
-        color: #9ca3af !important;
-      }
-      .editor-content pre { 
-        background: rgba(0, 0, 0, 0.3) !important; 
-        padding: 1rem !important; 
-        border-radius: 0.5rem !important; 
-        font-family: monospace !important;
-        margin: 1rem 0 !important;
-        overflow-x: auto !important;
-        color: #ffffff !important;
-      }
-      .editor-content ul { 
-        list-style-type: disc !important;
-        margin: 1rem 0 !important; 
-        padding-left: 2rem !important;
-      }
-
-      .editor-content ol {
-        list-style-type: decimal !important;
-        margin: 1rem 0 !important;
-        padding-left: 2rem !important;
-      }
-
-      .editor-content li {
-        display: list-item !important;
-        margin: 0.5rem 0 !important;
-        color: #ffffff !important;
-      }
-
-      .editor-content em, .editor-content i { 
-        font-style: italic !important;
-        display: inline !important;
-        color: #ffffff !important;
-      }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
-  
   // Editor state
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState([]);
   const [currentTag, setCurrentTag] = useState('');
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  // const [isPreviewMode, setIsPreviewMode] = useState(false); // Removed preview feature
   const [isStarred, setIsStarred] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(null);
   const [isDirty, setIsDirty] = useState(false);
   const [showFormatBar, setShowFormatBar] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isNewNote, setIsNewNote] = useState(true);
 
   // Colors for note themes
   const noteColors = [
@@ -153,42 +71,19 @@ const NoteEditor = () => {
   // Load existing note if editing
   useEffect(() => {
     if (noteId) {
-      // In a real app, you'd fetch the note from your backend
-      // For now, we'll simulate loading an existing note
-      const mockNote = {
-        id: noteId,
-        title: "Sample Note",
-        content: "This is a sample note content. You can edit this text and see the rich formatting options available.",
-        tags: ["sample", "demo"],
-        isStarred: false,
-        createdAt: new Date().toISOString(),
-        modifiedAt: new Date().toISOString()
-      };
-      
-      setTitle(mockNote.title);
-      setContent(mockNote.content);
-      setTags(mockNote.tags);
-      setIsStarred(mockNote.isStarred);
-      
-      // Set content in editor after state update
+      loadNote();
+    } else {
+      setIsNewNote(true);
+      // Focus on title for new notes
       setTimeout(() => {
-        if (editorRef.current) {
-          editorRef.current.innerHTML = mockNote.content;
+        if (titleRef.current) {
+          titleRef.current.focus();
         }
-      }, 100);
+      }, 200);
     }
-    
-    // Focus on title if new note, content if existing
-    setTimeout(() => {
-      if (!noteId && titleRef.current) {
-        titleRef.current.focus();
-      } else if (editorRef.current) {
-        editorRef.current.focus();
-      }
-    }, 200);
   }, [noteId]);
 
-  // Update word and character count based on text content, not HTML
+  // Update word and character count
   useEffect(() => {
     const textContent = editorRef.current?.textContent || '';
     const words = textContent.trim().split(/\s+/).filter(word => word.length > 0).length;
@@ -204,6 +99,73 @@ const NoteEditor = () => {
     }
   }, [title, content, tags]);
 
+  // Auto-save every 30 seconds
+  useEffect(() => {
+    if (!isDirty || !noteId) return;
+    
+    const autoSave = setInterval(() => {
+      if (isDirty && (title.trim() || content.trim())) {
+        handleAutoSave();
+      }
+    }, 30000);
+
+    return () => clearInterval(autoSave);
+  }, [isDirty, title, content, noteId]);
+
+  const loadNote = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.getNote(noteId);
+      const note = response.note;
+      
+      setTitle(note.title);
+      setContent(note.content);
+      setTags(note.tags || []);
+      setIsStarred(note.isStarred);
+      setIsNewNote(false);
+      
+      // Find matching color
+      const matchingColor = noteColors.find(color => 
+        color.name.toLowerCase() === note.color?.toLowerCase()
+      ) || noteColors[0];
+      setSelectedColor(matchingColor);
+      
+      // Set content in editor
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.innerHTML = note.content;
+        }
+      }, 100);
+      
+    } catch (error) {
+      console.error('Failed to load note:', error);
+      toast.error('Failed to load note');
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAutoSave = async () => {
+    if (!noteId || !isDirty) return;
+    
+    try {
+      const noteData = {
+        title: title || 'Untitled Note',
+        content,
+        tags,
+        isStarred,
+        color: selectedColor.name.toLowerCase()
+      };
+
+      await apiService.updateNote(noteId, noteData);
+      setLastSaved(new Date());
+      setIsDirty(false);
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    }
+  };
+
   const handleBack = () => {
     if (isDirty) {
       const shouldLeave = window.confirm('You have unsaved changes. Are you sure you want to leave?');
@@ -212,24 +174,46 @@ const NoteEditor = () => {
     navigate('/dashboard');
   };
 
-  const handleSave = () => {
-    // In a real app, you'd save to your backend here
-    console.log('Saving note:', { title, content, tags, isStarred, color: selectedColor });
-    
-    setLastSaved(new Date());
-    setIsDirty(false);
-    
-    // Simulate API delay
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 500);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      
+      const noteData = {
+        title: title || 'Untitled Note',
+        content,
+        tags,
+        isStarred,
+        color: selectedColor.name.toLowerCase()
+      };
+
+      let response;
+      if (isNewNote) {
+        response = await apiService.createNote(noteData);
+        toast.success('Note created successfully!');
+        // Redirect to edit mode for the new note
+        navigate(`/note-editor/${response.note._id}`, { replace: true });
+      } else {
+        response = await apiService.updateNote(noteId, noteData);
+        toast.success('Note saved successfully!');
+      }
+      
+      setLastSaved(new Date());
+      setIsDirty(false);
+      
+    } catch (error) {
+      console.error('Save failed:', error);
+      toast.error('Failed to save note');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleAddTag = (e) => {
     if (e.key === 'Enter' && currentTag.trim()) {
       e.preventDefault();
-      if (!tags.includes(currentTag.trim())) {
-        setTags([...tags, currentTag.trim()]);
+      const trimmedTag = currentTag.trim().toLowerCase();
+      if (!tags.includes(trimmedTag)) {
+        setTags([...tags, trimmedTag]);
       }
       setCurrentTag('');
     }
@@ -239,8 +223,24 @@ const NoteEditor = () => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  const toggleStar = async () => {
+    if (!isNewNote && noteId) {
+      try {
+        await apiService.toggleStar(noteId);
+        setIsStarred(!isStarred);
+        toast.success(isStarred ? 'Note unstarred' : 'Note starred');
+      } catch (error) {
+        console.error('Failed to toggle star:', error);
+        toast.error('Failed to update star status');
+      }
+    } else {
+      // For new notes, just update local state
+      setIsStarred(!isStarred);
+    }
+  };
+
+  // Format text functions (keeping the existing ones from previous implementation)
   const formatText = (command, value = null) => {
-    // Ensure editor is focused
     editorRef.current?.focus();
     
     const selection = window.getSelection();
@@ -251,7 +251,6 @@ const NoteEditor = () => {
     try {
       if (command === 'bold') {
         document.execCommand('bold', false);
-        // Ensure proper styling
         setTimeout(() => {
           const selection = window.getSelection();
           if (selection.rangeCount > 0) {
@@ -268,7 +267,6 @@ const NoteEditor = () => {
         }, 0);
       } else if (command === 'italic') {
         document.execCommand('italic', false);
-        // Ensure proper styling
         setTimeout(() => {
           const selection = window.getSelection();
           if (selection.rangeCount > 0) {
@@ -283,13 +281,6 @@ const NoteEditor = () => {
             }
           }
         }, 0);
-
-        // Update content state
-        setTimeout(() => {
-          if (editorRef.current) {
-            setContent(editorRef.current.innerHTML);
-          }
-        }, 10);
       } else if (command === 'underline') {
         const selectedText = range.toString();
         if (selectedText) {
@@ -305,9 +296,7 @@ const NoteEditor = () => {
             range.insertNode(u);
           }
           
-          // Clear selection
           selection.removeAllRanges();
-          // Move cursor after the underlined text
           const newRange = document.createRange();
           newRange.setStartAfter(u);
           newRange.collapse(true);
@@ -320,11 +309,9 @@ const NoteEditor = () => {
         const range = selection.getRangeAt(0);
         const selectedText = range.toString();
         
-        // Create list and item
         const ul = document.createElement('ul');
         const li = document.createElement('li');
         
-        // Set styles
         ul.style.cssText = `
           margin: 1rem 0;
           padding-left: 2rem;
@@ -337,30 +324,19 @@ const NoteEditor = () => {
           color: #ffffff;
         `;
         
-        // Add content
         li.textContent = selectedText || 'List item';
         ul.appendChild(li);
         
-        // Replace selection with list
         range.deleteContents();
         range.insertNode(ul);
         
-        // Place cursor at end of list item
         const newRange = document.createRange();
         newRange.setStartAfter(li.lastChild || li);
         newRange.collapse(true);
         selection.removeAllRanges();
         selection.addRange(newRange);
         
-        // Update content
-        setTimeout(() => {
-          if (editorRef.current) {
-            setContent(editorRef.current.innerHTML);
-          }
-        }, 10);
-        
       } else if (command === 'insertOrderedList') {
-        // Create ordered list
         const ol = document.createElement('ol');
         ol.style.margin = '1rem 0';
         ol.style.paddingLeft = '2rem';
@@ -375,7 +351,6 @@ const NoteEditor = () => {
         range.deleteContents();
         range.insertNode(ol);
         
-        // Place cursor inside the list item
         const newRange = document.createRange();
         newRange.setStart(li, 0);
         newRange.setEnd(li, li.childNodes.length);
@@ -383,11 +358,9 @@ const NoteEditor = () => {
         selection.addRange(newRange);
         
       } else {
-        // Fallback to execCommand for other formatting
         document.execCommand(command, false, value);
       }
       
-      // Update content state
       setTimeout(() => {
         if (editorRef.current) {
           setContent(editorRef.current.innerHTML);
@@ -396,7 +369,6 @@ const NoteEditor = () => {
       
     } catch (error) {
       console.warn('Format command failed:', command, error);
-      // Fallback to execCommand
       try {
         document.execCommand(command, false, value);
         setTimeout(() => {
@@ -409,7 +381,6 @@ const NoteEditor = () => {
       }
     }
     
-    // Restore focus
     editorRef.current?.focus();
   };
 
@@ -423,7 +394,6 @@ const NoteEditor = () => {
     const selectedText = range.toString();
     
     try {
-      // Create new heading element
       const heading = document.createElement(`h${level}`);
       heading.style.cssText = `
         font-size: ${level === 1 ? '1.5rem' : level === 2 ? '1.25rem' : '1.125rem'} !important;
@@ -432,21 +402,17 @@ const NoteEditor = () => {
         color: #ffffff !important;
       `;
       
-      // Set content
       heading.textContent = selectedText || `Heading ${level}`;
       
-      // Insert heading
       range.deleteContents();
       range.insertNode(heading);
       
-      // Move cursor to end of heading
       const newRange = document.createRange();
       newRange.setStartAfter(heading);
       newRange.collapse(true);
       selection.removeAllRanges();
       selection.addRange(newRange);
       
-      // Update content state
       setTimeout(() => {
         if (editorRef.current) {
           setContent(editorRef.current.innerHTML);
@@ -455,11 +421,9 @@ const NoteEditor = () => {
       
     } catch (error) {
       console.warn('Heading insertion failed:', error);
-      // Fallback
       try {
         document.execCommand('formatBlock', false, `h${level}`);
         
-        // Ensure styles are applied
         const headingElement = range.commonAncestorContainer.parentElement;
         if (headingElement && headingElement.tagName === `H${level}`) {
           headingElement.style.cssText = `
@@ -470,7 +434,6 @@ const NoteEditor = () => {
           `;
         }
         
-        // Update content
         setTimeout(() => {
           if (editorRef.current) {
             setContent(editorRef.current.innerHTML);
@@ -481,7 +444,6 @@ const NoteEditor = () => {
       }
     }
     
-    // Restore focus
     editorRef.current?.focus();
   };
 
@@ -507,20 +469,17 @@ const NoteEditor = () => {
     { icon: Heading3, action: () => insertHeading(3), tooltip: 'Heading 3' },
   ];
 
-  // Auto-save every 30 seconds
-  useEffect(() => {
-    if (!isDirty) return;
-    
-    const autoSave = setInterval(() => {
-      if (isDirty && (title.trim() || content.trim())) {
-        console.log('Auto-saving...');
-        setLastSaved(new Date());
-        setIsDirty(false);
-      }
-    }, 30000);
-
-    return () => clearInterval(autoSave);
-  }, [isDirty, title, content]);
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Loading note...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -555,7 +514,7 @@ const NoteEditor = () => {
                 />
                 
                 <button
-                  onClick={() => setIsStarred(!isStarred)}
+                  onClick={toggleStar}
                   className={`p-1 rounded transition-colors duration-200 ${
                     isStarred ? 'text-yellow-400' : 'text-gray-500 hover:text-yellow-400'
                   }`}
@@ -567,27 +526,28 @@ const NoteEditor = () => {
 
             {/* Right side - Actions */}
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsPreviewMode(!isPreviewMode)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center gap-2"
-              >
-                {isPreviewMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                <span className="text-sm">{isPreviewMode ? 'Edit' : 'Preview'}</span>
-              </button>
-
               <motion.button
                 onClick={handleSave}
-                disabled={!isDirty}
+                disabled={saving || (!isDirty && !isNewNote)}
                 className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
-                  isDirty 
+                  isDirty || isNewNote
                     ? 'bg-blue-600 hover:bg-blue-700 text-white' 
                     : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                 }`}
-                whileHover={isDirty ? { scale: 1.05 } : {}}
-                whileTap={isDirty ? { scale: 0.95 } : {}}
+                whileHover={(isDirty || isNewNote) ? { scale: 1.05 } : {}}
+                whileTap={(isDirty || isNewNote) ? { scale: 0.95 } : {}}
               >
-                <Save className="w-4 h-4" />
-                Save
+                {saving ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    {isNewNote ? 'Create Note' : 'Save'}
+                  </>
+                )}
               </motion.button>
             </div>
           </div>
@@ -601,6 +561,7 @@ const NoteEditor = () => {
                 <span>Last saved: {lastSaved.toLocaleTimeString()}</span>
               )}
               {isDirty && <span className="text-yellow-400">• Unsaved changes</span>}
+              {isNewNote && <span className="text-blue-400">• New note</span>}
             </div>
             
             <div className="flex items-center gap-2">
@@ -616,7 +577,7 @@ const NoteEditor = () => {
           {/* Main Editor */}
           <div className="lg:col-span-3">
             {/* Formatting Toolbar */}
-            {!isPreviewMode && showFormatBar && (
+            {showFormatBar && (
               <motion.div 
                 className="mb-6 p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl transition-all duration-300"
                 initial={{ opacity: 0, y: -10 }}
@@ -695,139 +656,117 @@ const NoteEditor = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              {isPreviewMode ? (
-                <div 
-                  className="prose prose-invert max-w-none leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: content }}
-                />
-              ) : (
-                <div
-                  ref={editorRef}
-                  contentEditable
-                  suppressContentEditableWarning
-                  dangerouslySetInnerHTML={{ __html: content }} // Add this line
-                  onInput={(e) => {
-                    setContent(e.target.innerHTML);
-                  }}
-                  onKeyDown={(e) => {
-                    // Handle common shortcuts
-                    if (e.ctrlKey || e.metaKey) {
-                      switch (e.key) {
-                        case 'b':
-                          e.preventDefault();
-                          formatText('bold');
-                          return;
-                        case 'i':
-                          e.preventDefault();
-                          formatText('italic');
-                          return;
-                        case 'u':
-                          e.preventDefault();
-                          formatText('underline');
-                          return;
-                        case 's':
-                          e.preventDefault();
-                          handleSave();
-                          return;
-                      }
+              <div
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                onInput={(e) => {
+                  setContent(e.target.innerHTML);
+                }}
+                onKeyDown={(e) => {
+                  // Handle common shortcuts
+                  if (e.ctrlKey || e.metaKey) {
+                    switch (e.key) {
+                      case 'b':
+                        e.preventDefault();
+                        formatText('bold');
+                        return;
+                      case 'i':
+                        e.preventDefault();
+                        formatText('italic');
+                        return;
+                      case 'u':
+                        e.preventDefault();
+                        formatText('underline');
+                        return;
+                      case 's':
+                        e.preventDefault();
+                        handleSave();
+                        return;
                     }
-                    
-                    // Handle Enter key in lists to create new list items
-                    if (e.key === 'Enter') {
-                      const selection = window.getSelection();
-                      if (selection.rangeCount > 0) {
-                        let currentElement = selection.anchorNode;
-                        
-                        // Find if we're in a list item
-                        while (currentElement && currentElement.nodeType !== Node.ELEMENT_NODE) {
-                          currentElement = currentElement.parentNode;
-                        }
-                        
-                        while (currentElement && currentElement !== editorRef.current) {
-                          if (currentElement.tagName === 'LI') {
-                            // We're in a list item
-                            if (currentElement.textContent.trim() === '') {
-                              // Empty list item, exit the list
-                              e.preventDefault();
+                  }
+                  
+                  // Handle Enter key in lists
+                  if (e.key === 'Enter') {
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                      let currentElement = selection.anchorNode;
+                      
+                      while (currentElement && currentElement.nodeType !== Node.ELEMENT_NODE) {
+                        currentElement = currentElement.parentNode;
+                      }
+                      
+                      while (currentElement && currentElement !== editorRef.current) {
+                        if (currentElement.tagName === 'LI') {
+                          if (currentElement.textContent.trim() === '') {
+                            e.preventDefault();
+                            
+                            const list = currentElement.parentElement;
+                            const newP = document.createElement('div');
+                            newP.innerHTML = '<br>';
+                            newP.style.color = '#ffffff';
+                            
+                            if (list.parentNode) {
+                              list.parentNode.insertBefore(newP, list.nextSibling);
                               
-                              // Create a new paragraph after the list
-                              const list = currentElement.parentElement;
-                              const newP = document.createElement('div');
-                              newP.innerHTML = '<br>';
-                              newP.style.color = '#ffffff';
-                              
-                              // Insert after the list
-                              if (list.parentNode) {
-                                list.parentNode.insertBefore(newP, list.nextSibling);
-                                
-                                // Remove the empty list item
-                                if (list.children.length === 1) {
-                                  // Only one item, remove entire list
-                                  list.parentNode.removeChild(list);
-                                } else {
-                                  // Remove just this item
-                                  currentElement.parentNode.removeChild(currentElement);
-                                }
-                                
-                                // Focus the new paragraph
-                                const range = document.createRange();
-                                range.setStart(newP, 0);
-                                range.collapse(true);
-                                selection.removeAllRanges();
-                                selection.addRange(range);
-                                
-                                // Update content
-                                setTimeout(() => {
-                                  if (editorRef.current) {
-                                    setContent(editorRef.current.innerHTML);
-                                  }
-                                }, 10);
+                              if (list.children.length === 1) {
+                                list.parentNode.removeChild(list);
+                              } else {
+                                currentElement.parentNode.removeChild(currentElement);
                               }
-                              return;
-                            } else {
-                              // Non-empty list item, create new list item
-                              e.preventDefault();
                               
-                              const newLi = document.createElement('li');
-                              newLi.style.margin = '0.5rem 0';
-                              newLi.style.color = '#ffffff';
-                              newLi.innerHTML = '<br>';
-                              
-                              // Insert after current item
-                              currentElement.parentNode.insertBefore(newLi, currentElement.nextSibling);
-                              
-                              // Focus the new list item
                               const range = document.createRange();
-                              range.setStart(newLi, 0);
+                              range.setStart(newP, 0);
                               range.collapse(true);
                               selection.removeAllRanges();
                               selection.addRange(range);
                               
-                              // Update content
                               setTimeout(() => {
                                 if (editorRef.current) {
                                   setContent(editorRef.current.innerHTML);
                                 }
                               }, 10);
-                              return;
                             }
+                            return;
+                          } else {
+                            e.preventDefault();
+                            
+                            const newLi = document.createElement('li');
+                            newLi.style.margin = '0.5rem 0';
+                            newLi.style.color = '#ffffff';
+                            newLi.innerHTML = '<br>';
+                            
+                            currentElement.parentNode.insertBefore(newLi, currentElement.nextSibling);
+                            
+                            const range = document.createRange();
+                            range.setStart(newLi, 0);
+                            range.collapse(true);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                            
+                            setTimeout(() => {
+                              if (editorRef.current) {
+                                setContent(editorRef.current.innerHTML);
+                              }
+                            }, 10);
+                            return;
                           }
-                          currentElement = currentElement.parentNode;
                         }
+                        currentElement = currentElement.parentNode;
                       }
                     }
-                  }}
-                  className="outline-none min-h-[500px] text-gray-100 leading-relaxed editor-content"
-                  style={{ 
-                    fontSize: '16px', 
-                    lineHeight: '1.7'
-                  }}
-                  data-placeholder=""
-                />
-              )}
+                  }
+                }}
+                className="outline-none min-h-[500px] text-gray-100 leading-relaxed editor-content"
+                style={{ 
+                  fontSize: '16px', 
+                  lineHeight: '1.7'
+                }}
+                data-placeholder=""
+              />
 
               {/* Empty state */}
-              {!content && !isPreviewMode && (
+              {!content && (
                 <div className="absolute inset-8 flex items-center justify-center text-gray-500 pointer-events-none">
                   <div className="text-center">
                     <div className="text-6xl mb-4">📝</div>
@@ -933,9 +872,9 @@ const NoteEditor = () => {
                 
                 <button
                   onClick={() => {
-                    // Get plain text content
                     const plainText = editorRef.current?.textContent || '';
                     navigator.clipboard.writeText(plainText);
+                    toast.success('Content copied to clipboard');
                   }}
                   className="w-full p-2 text-left hover:bg-white/5 rounded-lg transition-colors text-sm"
                 >
@@ -944,25 +883,144 @@ const NoteEditor = () => {
                 
                 <button
                   onClick={() => {
-                    // Get plain text content
                     const plainText = editorRef.current?.textContent || '';
                     const element = document.createElement('a');
-                    const file = new Blob([`# ${title}\n\n${plainText}`], { type: 'text/plain' });
+                    const file = new Blob([`# ${title || 'Untitled Note'}\n\n${plainText}`], { type: 'text/plain' });
                     element.href = URL.createObjectURL(file);
                     element.download = `${title || 'note'}.txt`;
                     document.body.appendChild(element);
                     element.click();
                     document.body.removeChild(element);
+                    toast.success('Note exported successfully');
                   }}
                   className="w-full p-2 text-left hover:bg-white/5 rounded-lg transition-colors text-sm"
                 >
                   Export as Text
                 </button>
+
+                {!isNewNote && (
+                  <button
+                    onClick={async () => {
+                      if (window.confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+                        try {
+                          await apiService.deleteNote(noteId);
+                          toast.success('Note deleted successfully');
+                          navigate('/dashboard');
+                        } catch (error) {
+                          console.error('Failed to delete note:', error);
+                          toast.error('Failed to delete note');
+                        }
+                      }
+                    }}
+                    className="w-full p-2 text-left hover:bg-red-500/10 rounded-lg transition-colors text-sm text-red-400"
+                  >
+                    Delete Note
+                  </button>
+                )}
               </div>
             </motion.div>
+
+            {/* Note Info */}
+            {!isNewNote && (
+              <motion.div 
+                className="p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+              >
+                <h3 className="font-semibold mb-4">Note Info</h3>
+                
+                <div className="space-y-3 text-sm text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>Created: {new Date().toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span>Modified: {lastSaved ? lastSaved.toLocaleDateString() : 'Not saved'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    <span>Words: {wordCount}</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Add editor styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .editor-content:empty:before {
+            content: attr(data-placeholder);
+            color: #6b7280;
+            pointer-events: none;
+            position: absolute;
+          }
+          .editor-content:focus:empty:before {
+            content: attr(data-placeholder);
+            color: #6b7280;
+            pointer-events: none;
+            position: absolute;
+          }
+          .editor-content h1 { 
+            font-size: 1.5rem !important; 
+            font-weight: bold !important; 
+            margin-bottom: 1rem !important; 
+            color: #ffffff !important;
+          }
+          .editor-content h2 { 
+            font-size: 1.25rem !important; 
+            font-weight: 600 !important; 
+            margin-bottom: 0.75rem !important; 
+            color: #ffffff !important;
+          }
+          .editor-content h3 { 
+            font-size: 1.125rem !important; 
+            font-weight: 500 !important; 
+            margin-bottom: 0.5rem !important; 
+            color: #ffffff !important;
+          }
+          .editor-content blockquote { 
+            border-left: 4px solid #3b82f6 !important; 
+            padding-left: 1rem !important; 
+            margin: 1rem 0 !important; 
+            font-style: italic !important;
+            color: #9ca3af !important;
+          }
+          .editor-content pre { 
+            background: rgba(0, 0, 0, 0.3) !important; 
+            padding: 1rem !important; 
+            border-radius: 0.5rem !important; 
+            font-family: monospace !important;
+            margin: 1rem 0 !important;
+            overflow-x: auto !important;
+            color: #ffffff !important;
+          }
+          .editor-content ul { 
+            list-style-type: disc !important;
+            margin: 1rem 0 !important; 
+            padding-left: 2rem !important;
+          }
+          .editor-content ol {
+            list-style-type: decimal !important;
+            margin: 1rem 0 !important;
+            padding-left: 2rem !important;
+          }
+          .editor-content li {
+            display: list-item !important;
+            margin: 0.5rem 0 !important;
+            color: #ffffff !important;
+          }
+          .editor-content em, .editor-content i { 
+            font-style: italic !important;
+            display: inline !important;
+            color: #ffffff !important;
+          }
+        `
+      }} />
     </div>
   );
 };
