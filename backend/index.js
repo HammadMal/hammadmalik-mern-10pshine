@@ -6,9 +6,12 @@ const passport = require("./config/passport");
 const app = express();
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
+
 const authRoute = require("./Routes/AuthRoute");
 const googleAuthRoute = require("./Routes/GoogleAuthRoute");
-const passwordResetRoute = require("./Routes/PasswordResetRoute"); 
+const passwordResetRoute = require("./Routes/PasswordResetRoute");
+const noteRoute = require("./Routes/NoteRoute"); // New note routes
+
 const { MONGO_URL, PORT } = process.env;
 
 mongoose
@@ -19,7 +22,7 @@ mongoose
 app.use(
   cors({
     origin: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
 );
@@ -44,9 +47,11 @@ app.get("/test", (req, res) => {
   res.send("Welcome to the backend server");
 });
 
+// Routes
 app.use("/", authRoute);
 app.use("/auth", googleAuthRoute);
-app.use("/password-reset", passwordResetRoute); // New route
+app.use("/password-reset", passwordResetRoute);
+app.use("/api/notes", noteRoute); // New note routes
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
