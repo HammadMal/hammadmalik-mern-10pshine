@@ -166,13 +166,46 @@ const NoteEditor = () => {
     }
   };
 
-  const handleBack = () => {
-    if (isDirty) {
-      const shouldLeave = window.confirm('You have unsaved changes. Are you sure you want to leave?');
-      if (!shouldLeave) return;
-    }
-    navigate('/dashboard');
-  };
+const handleBack = () => {
+  if (isDirty) {
+    // Create a custom toast with Yes/No buttons
+    const ConfirmToast = ({ closeToast }) => (
+      <div>
+        <p className="mb-4">You have unsaved changes. Are you sure you want to leave?</p>
+        <div className="flex gap-2 justify-center"> {/* Added justify-center */}
+          <button
+            onClick={() => {
+              navigate('/dashboard');
+              closeToast();
+            }}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+          >
+            Yes, Leave
+          </button>
+          <button
+            onClick={closeToast}
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+
+    toast(<ConfirmToast />, {
+      position: "top-center",
+      autoClose: false,
+      hideProgressBar: true,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: false,
+      closeButton: false,
+    });
+    
+    return;
+  }
+  navigate('/dashboard');
+};
 
   const handleSave = async () => {
     try {

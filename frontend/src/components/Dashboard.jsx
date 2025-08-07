@@ -326,7 +326,7 @@ const Dashboard = () => {
 
           {/* Controls */}
           <div className="flex items-center gap-3">
-            {/* Filter */}
+             {/* Filter */}
             <select
               value={filterBy}
               onChange={(e) => setFilterBy(e.target.value)}
@@ -336,11 +336,14 @@ const Dashboard = () => {
                 focus:border-white/30 focus:bg-white/10
                 transition-all duration-300
               "
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                color: 'white'
+              }}
             >
-              <option value="all">All Notes</option>
-              <option value="starred">Starred</option>
-              <option value="recent">Recent</option>
-              <option value="archived">Archived</option>
+              <option value="all" style={{ backgroundColor: '#1f2937', color: 'white' }}>All Notes</option>
+              <option value="starred" style={{ backgroundColor: '#1f2937', color: 'white' }}>Starred</option>
+              <option value="recent" style={{ backgroundColor: '#1f2937', color: 'white' }}>Recent</option>
             </select>
 
             {/* Sort */}
@@ -353,12 +356,15 @@ const Dashboard = () => {
                 focus:border-white/30 focus:bg-white/10
                 transition-all duration-300
               "
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                color: 'white'
+              }}
             >
-              <option value="modifiedAt">Last Modified</option>
-              <option value="createdAt">Date Created</option>
-              <option value="title">Title</option>
+              <option value="modifiedAt" style={{ backgroundColor: '#1f2937', color: 'white' }}>Last Modified</option>
+              <option value="createdAt" style={{ backgroundColor: '#1f2937', color: 'white' }}>Date Created</option>
+              <option value="title" style={{ backgroundColor: '#1f2937', color: 'white' }}>Title</option>
             </select>
-
             <button
               onClick={toggleSort}
               className="
@@ -487,7 +493,7 @@ const Dashboard = () => {
                         </button>
                         
                         <div className="relative">
-                          <button
+                          {/* <button
                             onClick={(e) => {
                               e.stopPropagation();
                               setShowDropdown(showDropdown === note._id ? null : note._id);
@@ -495,38 +501,46 @@ const Dashboard = () => {
                             className="p-1 text-gray-500 hover:text-white rounded-lg transition-colors duration-300"
                           >
                             <MoreVertical className="w-5 h-5" />
-                          </button>
+                          </button> */}
                           
                           {showDropdown === note._id && (
-                            <div className="absolute right-0 top-8 w-48 bg-gray-800 border border-white/10 rounded-lg shadow-xl z-10">
+                            <div 
+                              className="absolute right-0 top-8 w-48 bg-gray-800 border border-white/10 rounded-lg shadow-xl z-50"
+                              onClick={(e) => e.stopPropagation()} // Add this line to prevent click propagation
+                            >
                               <div className="py-2">
                                 <button 
                                   onClick={(e) => {
+                                    e.preventDefault();
                                     e.stopPropagation();
                                     setShowDropdown(null);
                                     handleNoteClick(note._id);
                                   }}
-                                  className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2 transition-colors duration-200"
                                 >
                                   <Edit3 className="w-4 h-4" />
                                   Edit
                                 </button>
                                 <button 
                                   onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     setShowDropdown(null);
                                     handleArchive(note._id, e);
                                   }}
-                                  className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2 transition-colors duration-200"
                                 >
                                   <Archive className="w-4 h-4" />
                                   Archive
                                 </button>
                                 <button 
                                   onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     setShowDropdown(null);
                                     handleDelete(note._id, e);
                                   }}
-                                  className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-colors duration-200"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                   Delete
@@ -614,35 +628,43 @@ const Dashboard = () => {
                         </button>
                         
                         {showDropdown === note._id && (
-                          <div className="absolute right-0 top-8 w-48 bg-gray-800 border border-white/10 rounded-lg shadow-xl z-10">
+                          <div 
+                            className="absolute right-0 top-8 w-48 bg-gray-800 border border-white/10 rounded-lg shadow-xl z-50"
+                            onClick={(e) => e.stopPropagation()} // Add this line to prevent click propagation
+                          >
                             <div className="py-2">
                               <button 
                                 onClick={(e) => {
+                                  e.preventDefault();
                                   e.stopPropagation();
                                   setShowDropdown(null);
                                   handleNoteClick(note._id);
                                 }}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2"
+                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2 transition-colors duration-200"
                               >
                                 <Edit3 className="w-4 h-4" />
                                 Edit
                               </button>
                               <button 
                                 onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
                                   setShowDropdown(null);
                                   handleArchive(note._id, e);
                                 }}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2"
+                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2 transition-colors duration-200"
                               >
                                 <Archive className="w-4 h-4" />
                                 Archive
                               </button>
                               <button 
                                 onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
                                   setShowDropdown(null);
                                   handleDelete(note._id, e);
                                 }}
-                                className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
+                                className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-colors duration-200"
                               >
                                 <Trash2 className="w-4 h-4" />
                                 Delete
