@@ -6,7 +6,7 @@ class ApiService {
   async makeRequest(url, options = {}) {
     const config = {
       ...options,
-      credentials: 'include', // Important: include cookies for authentication
+      credentials: 'include', 
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
