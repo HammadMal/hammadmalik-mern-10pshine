@@ -1,13 +1,12 @@
 const Note = require("../Models/NoteModel");
 const mongoose = require("mongoose");
 
-// Create a new note
+
 module.exports.createNote = async (req, res) => {
   try {
     const { title, content, tags, isStarred, color } = req.body;
-    const userId = req.user.id; // From authentication middleware
+    const userId = req.user.id; 
 
-    // Validation
     if (!title || !content) {
       return res.status(400).json({
         success: false,
@@ -42,7 +41,6 @@ module.exports.createNote = async (req, res) => {
   }
 };
 
-// Get all notes for a user with filtering and sorting
 module.exports.getNotes = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -56,13 +54,11 @@ module.exports.getNotes = async (req, res) => {
       tags 
     } = req.query;
 
-    // Build query
     let query = { 
       userId,
-      isArchived: false // By default, don't show archived notes
+      isArchived: false 
     };
 
-    // Apply filters
     switch (filter) {
       case 'starred':
         query.isStarred = true;
@@ -75,7 +71,7 @@ module.exports.getNotes = async (req, res) => {
       case 'archived':
         query.isArchived = true;
         break;
-      // 'all' is default - no additional filter
+
     }
 
     // Apply search
