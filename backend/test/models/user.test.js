@@ -1,13 +1,33 @@
+const mongoose = require('mongoose');
 const User = require('../../Models/UserModel');
 const bcrypt = require('bcryptjs');
 
 describe('User Model - Unit Tests', () => {
-  beforeEach(async () => {
+  before(async function() {
+    this.timeout(30000);
+    await global.connectTestDB();
+  });
+
+  after(async function() {
+    this.timeout(10000);
+    await global.cleanupTestDB();
+  });
+
+  beforeEach(async function() {
+    this.timeout(10000);
+    
+    // Ensure database is connected
+    if (mongoose.connection.readyState !== 1) {
+      throw new Error('Database not connected');
+    }
+    
     await User.deleteMany({});
   });
 
   describe('User creation', () => {
-    it('should create a user with valid data', async () => {
+    it('should create a user with valid data', async function() {
+      this.timeout(10000);
+      
       const userData = {
         email: 'test@example.com',
         username: 'testuser',
@@ -22,7 +42,9 @@ describe('User Model - Unit Tests', () => {
       expect(user.createdAt).to.exist;
     });
 
-    it('should hash password on save', async () => {
+    it('should hash password on save', async function() {
+      this.timeout(10000);
+      
       const userData = {
         email: 'test@example.com',
         username: 'testuser',
@@ -35,7 +57,9 @@ describe('User Model - Unit Tests', () => {
       expect(isPasswordHashed).to.be.true;
     });
 
-    it('should not hash Google OAuth password', async () => {
+    it('should not hash Google OAuth password', async function() {
+      this.timeout(10000);
+      
       const userData = {
         email: 'test@example.com',
         username: 'testuser',
@@ -48,7 +72,9 @@ describe('User Model - Unit Tests', () => {
       expect(user.password).to.equal('google-oauth-user');
     });
 
-    it('should require email', async () => {
+    it('should require email', async function() {
+      this.timeout(10000);
+      
       const userData = {
         username: 'testuser',
         password: 'password123'
@@ -62,7 +88,9 @@ describe('User Model - Unit Tests', () => {
       }
     });
 
-    it('should require unique email', async () => {
+    it('should require unique email', async function() {
+      this.timeout(10000);
+      
       const userData = {
         email: 'test@example.com',
         username: 'testuser',
@@ -83,7 +111,9 @@ describe('User Model - Unit Tests', () => {
   describe('Password reset functionality', () => {
     let user;
 
-    beforeEach(async () => {
+    beforeEach(async function() {
+      this.timeout(10000);
+      
       user = await User.create({
         email: 'test@example.com',
         username: 'testuser',
@@ -91,7 +121,9 @@ describe('User Model - Unit Tests', () => {
       });
     });
 
-    it('should store OTP and expiration', async () => {
+    it('should store OTP and expiration', async function() {
+      this.timeout(10000);
+      
       const otp = '123456';
       const expires = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -104,7 +136,9 @@ describe('User Model - Unit Tests', () => {
       expect(updatedUser.resetPasswordExpires).to.exist;
     });
 
-    it('should clear OTP after use', async () => {
+    it('should clear OTP after use', async function() {
+      this.timeout(10000);
+      
       user.resetPasswordOTP = '123456';
       user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000);
       await user.save();

@@ -35,6 +35,8 @@ describe('Auth Controller - Unit Tests', () => {
     // Clean users collection - only if connected
     if (mongoose.connection.readyState === 1) {
       await User.deleteMany({});
+    } else {
+      throw new Error('Database not connected');
     }
   });
 
@@ -107,15 +109,23 @@ describe('Auth Controller - Unit Tests', () => {
   });
 
   describe('POST /login', () => {
+    let testUserData;
+
     beforeEach(async function() {
       this.timeout(10000);
       
-      // Create a test user
-      const hashedPassword = await bcrypt.hash('password123', 12);
-      await User.create({
+      testUserData = {
         email: 'test@example.com',
         username: 'testuser',
-        password: hashedPassword
+        password: 'password123'
+      };
+
+      // Create a test user using the User.create method
+      // This will trigger the pre-save hook to hash the password properly
+      await User.create({
+        email: testUserData.email,
+        username: testUserData.username,
+        password: testUserData.password // Let the model hash this
       });
     });
 
@@ -123,8 +133,8 @@ describe('Auth Controller - Unit Tests', () => {
       this.timeout(10000);
       
       const loginData = {
-        email: 'test@example.com',
-        password: 'password123'
+        email: testUserData.email,
+        password: testUserData.password
       };
 
       const response = await request(app)
@@ -145,7 +155,7 @@ describe('Auth Controller - Unit Tests', () => {
       
       const loginData = {
         email: 'nonexistent@example.com',
-        password: 'password123'
+        password: testUserData.password
       };
 
       const response = await request(app)
@@ -161,7 +171,7 @@ describe('Auth Controller - Unit Tests', () => {
       this.timeout(10000);
       
       const loginData = {
-        email: 'test@example.com',
+        email: testUserData.email,
         password: 'wrongpassword'
       };
 

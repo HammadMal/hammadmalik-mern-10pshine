@@ -1,5 +1,6 @@
 const request = require('supertest');
 const express = require('express');
+const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const User = require('../../Models/UserModel');
 const { requireAuth, userVerification, optionalAuth } = require('../../Middlewares/AuthMiddleware');
@@ -10,7 +11,10 @@ describe('Auth Middleware - Unit Tests', () => {
   let testUser;
   let validToken;
 
-  before(() => {
+  before(async function() {
+    this.timeout(30000);
+    await global.connectTestDB();
+    
     app = express();
     app.use(cookieParser());
     app.use(express.json());
@@ -27,7 +31,19 @@ describe('Auth Middleware - Unit Tests', () => {
     });
   });
 
-  beforeEach(async () => {
+  after(async function() {
+    this.timeout(10000);
+    await global.cleanupTestDB();
+  });
+
+  beforeEach(async function() {
+    this.timeout(10000);
+    
+    // Ensure database is connected
+    if (mongoose.connection.readyState !== 1) {
+      throw new Error('Database not connected');
+    }
+    
     await User.deleteMany({});
     
     testUser = await User.create({
@@ -42,7 +58,9 @@ describe('Auth Middleware - Unit Tests', () => {
   });
 
   describe('requireAuth middleware', () => {
-    it('should allow access with valid token', async () => {
+    it('should allow access with valid token', async function() {
+      this.timeout(10000);
+      
       const response = await request(app)
         .get('/protected')
         .set('Cookie', [`token=${validToken}`])
@@ -52,7 +70,9 @@ describe('Auth Middleware - Unit Tests', () => {
       expect(response.body.user).to.have.property('email', testUser.email);
     });
 
-    it('should reject request without token', async () => {
+    it('should reject request without token', async function() {
+      this.timeout(10000);
+      
       const response = await request(app)
         .get('/protected')
         .expect(401);
@@ -61,7 +81,9 @@ describe('Auth Middleware - Unit Tests', () => {
       expect(response.body.message).to.equal('Access denied. No token provided.');
     });
 
-    it('should reject request with invalid token', async () => {
+    it('should reject request with invalid token', async function() {
+      this.timeout(10000);
+      
       const response = await request(app)
         .get('/protected')
         .set('Cookie', ['token=invalid-token'])
@@ -71,7 +93,9 @@ describe('Auth Middleware - Unit Tests', () => {
       expect(response.body.message).to.equal('Invalid token.');
     });
 
-    it('should reject request with expired token', async () => {
+    it('should reject request with expired token', async function() {
+      this.timeout(10000);
+      
       const expiredToken = jwt.sign({ id: testUser._id }, process.env.TOKEN_KEY, {
         expiresIn: '-1h'
       });
@@ -86,7 +110,9 @@ describe('Auth Middleware - Unit Tests', () => {
   });
 
   describe('userVerification middleware', () => {
-    it('should verify valid token', async () => {
+    it('should verify valid token', async function() {
+      this.timeout(10000);
+      
       const response = await request(app)
         .post('/verify')
         .set('Cookie', [`token=${validToken}`])
@@ -96,7 +122,9 @@ describe('Auth Middleware - Unit Tests', () => {
       expect(response.body.user).to.equal(testUser.username);
     });
 
-    it('should reject invalid token', async () => {
+    it('should reject invalid token', async function() {
+      this.timeout(10000);
+      
       const response = await request(app)
         .post('/verify')
         .set('Cookie', ['token=invalid'])
@@ -105,7 +133,9 @@ describe('Auth Middleware - Unit Tests', () => {
       expect(response.body.status).to.be.false;
     });
 
-    it('should reject missing token', async () => {
+    it('should reject missing token', async function() {
+      this.timeout(10000);
+      
       const response = await request(app)
         .post('/verify')
         .expect(200);
@@ -115,7 +145,9 @@ describe('Auth Middleware - Unit Tests', () => {
   });
 
   describe('optionalAuth middleware', () => {
-    it('should set user with valid token', async () => {
+    it('should set user with valid token', async function() {
+      this.timeout(10000);
+      
       const response = await request(app)
         .get('/optional')
         .set('Cookie', [`token=${validToken}`])
@@ -125,7 +157,9 @@ describe('Auth Middleware - Unit Tests', () => {
       expect(response.body.user).to.exist;
     });
 
-    it('should allow access without token', async () => {
+    it('should allow access without token', async function() {
+      this.timeout(10000);
+      
       const response = await request(app)
         .get('/optional')
         .expect(200);
@@ -134,7 +168,9 @@ describe('Auth Middleware - Unit Tests', () => {
       expect(response.body.user).to.be.null;
     });
 
-    it('should set user to null with invalid token', async () => {
+    it('should set user to null with invalid token', async function() {
+      this.timeout(10000);
+      
       const response = await request(app)
         .get('/optional')
         .set('Cookie', ['token=invalid'])
