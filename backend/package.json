@@ -3,23 +3,59 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "cross-env NODE_ENV=test mocha test/**/*.test.js --require test/setup.js --timeout 30000 --exit",
+    "test:single": "cross-env NODE_ENV=test mocha --require test/setup.js --timeout 30000 --exit",
+    "test:db": "cross-env NODE_ENV=test mocha test/database.test.js --require test/setup.js --timeout 30000 --exit",
+    "test:auth": "cross-env NODE_ENV=test mocha test/controllers/authController.test.js --require test/setup.js --timeout 30000 --exit",
+    "test:watch": "cross-env NODE_ENV=test mocha test/**/*.test.js --require test/setup.js --timeout 30000 --watch",
+    "test:coverage": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text --reporter=lcov mocha test/**/*.test.js --require test/setup.js --timeout 30000 --exit",
+    "test:unit": "npm run test -- --grep 'Unit'",
+    "test:integration": "npm run test -- --grep 'Integration'"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/chai": "^5.2.2",
+    "@types/mocha": "^10.0.10",
+    "@types/sinon": "^17.0.4",
     "bcryptjs": "^3.0.2",
+    "chai": "^5.2.1",
+    "chai-http": "^5.1.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "jsonwebtoken": "^9.0.2",
+    "mocha": "^11.7.1",
     "mongoose": "^8.16.5",
     "nodemon": "^3.1.10",
+    "nyc": "^17.1.0",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "pino": "^9.8.0",
+    "pino-http": "^10.5.0",
+    "pino-pretty": "^13.1.1",
+    "sinon": "^21.0.0",
+    "supertest": "^7.1.4"
+  },
+  "nyc": {
+    "exclude": [
+      "test/**",
+      "coverage/**",
+      "node_modules/**"
+    ],
+    "include": [
+      "Controllers/**",
+      "Models/**",
+      "Middlewares/**",
+      "util/**",
+      "config/**"
+    ]
   }
 }
