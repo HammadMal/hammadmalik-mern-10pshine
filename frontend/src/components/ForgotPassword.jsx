@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Orb from './Orb';
 
 import { ToastContainer, toast } from 'react-toastify';
-const API_BASE_URL = 'http://localhost:4000'; 
+const API_BASE_URL = 'https://notehive.ddns.net'; 
 
 const ForgotPassword = () => {
   let navigate = useNavigate();

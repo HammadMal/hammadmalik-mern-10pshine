@@ -50,7 +50,7 @@ const SignIn = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:4000/login',
+        'https://notehive.ddns.net/login',
         {
           email: formData.email,
           password: formData.password
@@ -102,7 +102,7 @@ const SignIn = () => {
   // Updated Google OAuth handler
   const handleGoogleSignIn = () => {
     // Redirect to backend Google OAuth route
-    window.location.href = 'http://localhost:4000/auth/google';
+    window.location.href = 'https://notehive.ddns.net/auth/google';
   };
 
   return (

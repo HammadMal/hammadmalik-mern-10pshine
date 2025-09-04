@@ -81,7 +81,7 @@ const SignUp = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:4000/signup",
+        "https://notehive.ddns.net/signup",
         {
           email: formData.email,
           password: formData.password,

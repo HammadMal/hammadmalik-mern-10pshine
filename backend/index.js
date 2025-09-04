@@ -32,8 +32,11 @@ mongoose
 
 app.use(
   cors({
-    origin: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    origin: [
+      'https://your-vercel-app.vercel.app',
+      'http://localhost:5173' 
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   })
 );
